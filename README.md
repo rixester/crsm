@@ -1,4 +1,6 @@
 # CRSM
+[![Título do Card](exemplo.jpg)](pagina_destino.html)
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
