@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Consulta de País pelo MMSI</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; background: #f4f4f9; }
+    .content { background: #fff; padding: 20px; border-radius: 8px; display: inline-block; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input { padding: 10px; width: 240px; margin-bottom: 15px; }
+    #resultado2 { font-size: 18px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="content">
+  <h3>Consulta de País pelo MMSI</h3>
+  <input type="number" id="mmsiInput" placeholder="Digite os 3 primeiros dígitos do MMSI" oninput="consultarPais()" maxlength="3">
+  <div id="resultado2"></div>
+  <img id="bandeira" src="" alt="Bandeira" style="display: none; margin-top: 10px; width: 50px; height: 30px;">
+</div>
+
+<script>
+const mmsiToPais = {
+  "201": { nome: "Albânia", bandeira: "al" },
+  "202": { nome: "Andorra", bandeira: "ad" }
+};
+
+function consultarPais() {
+  const mmsi = document.getElementById("mmsiInput").value;
+  if (mmsiToPais[mmsi]) {
+    const pais = mmsiToPais[mmsi].nome;
+    const bandeira = mmsiToPais[mmsi].bandeira;
+
+    document.getElementById("resultado2").innerText = "País: " + pais;
+    document.getElementById("bandeira").src = `https://www.bandeirasnacionais.com/data/flags/h80/${bandeira}.png`;
+    document.getElementById("bandeira").style.display = 'inline';
+  } else {
+    document.getElementById("resultado2").innerText = "País não encontrado para o MMSI " + mmsi;
+    document.getElementById("bandeira").style.display = 'none';
+  }
+}
+</script>
+
+</body>
+</html>

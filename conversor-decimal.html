@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Conversor LAT LONG (Decimal)</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f9; padding: 40px; }
+    input { padding: 10px; margin: 10px; width: 150px; }
+  </style>
+</head>
+<body>
+
+<h3>Conversor de LAT LONG (Decimal para GMS)</h3>
+
+<input type="number" id="patr_lat" placeholder="Latitude decimal" oninput="calculargms()">
+<input type="number" id="patr_lng" placeholder="Longitude decimal" oninput="calculargms()">
+
+<div id="latgms"></div>
+<div id="longgms"></div>
+
+<script>
+function decimalToDMS(degrees, isLatitude) {
+  let d = Math.floor(Math.abs(degrees));
+  let m = Math.floor((Math.abs(degrees) - d) * 60);
+  let s = Math.round((Math.abs(degrees) - d - (m /60))*3600);
+  s = s.toFixed(0);
+  let direction = isLatitude ? (degrees >= 0 ? "N" : "S") : (degrees >= 0 ? "E" : "W");
+  return `${d}° ${m}' ${s}" ${direction}`;
+}
+
+function calculargms() {
+  let lat = parseFloat(document.getElementById("patr_lat").value);
+  let lng = parseFloat(document.getElementById("patr_lng").value);
+  let latDMS = decimalToDMS(lat, true);
+  let lngDMS = decimalToDMS(lng, false);
+  document.getElementById("latgms").textContent = "Lat: " + latDMS;
+  document.getElementById("longgms").textContent = "Long: " + lngDMS;
+}
+</script>
+
+</body>
+</html>

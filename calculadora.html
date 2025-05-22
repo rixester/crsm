@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora de Tempo e Distância</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; text-align: center; }
+    .content { padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: inline-block; }
+    input { margin-bottom: 10px; padding: 5px; }
+    #resultado { font-size: 18px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="content">
+  <h3>Calculadora de Tempo e Distância</h3>
+  <label>Data e Hora da Posição:</label>
+  <input type="datetime-local" id="dataHoraPosicao"><br>
+  
+  <label>Distância a Navegar (MN):</label>
+  <input type="number" id="distancia" placeholder="MN"><br>
+  
+  <label>Velocidade Navegando (Nós):</label>
+  <input type="number" id="velocidade" placeholder="Nós" oninput="calcularTempo()"><br>
+  
+  <div id="resultado"></div>
+</div>
+
+<script>
+function calcularTempo() {
+  const dataHoraPosicao = new Date(document.getElementById("dataHoraPosicao").value);
+  const distancia = parseFloat(document.getElementById("distancia").value);
+  const velocidade = parseFloat(document.getElementById("velocidade").value);
+
+  if (isNaN(distancia) || isNaN(velocidade) || distancia <= 0 || velocidade <= 0 || isNaN(dataHoraPosicao.getTime())) {
+    document.getElementById("resultado").innerHTML = "<strong style='color: red;'>Preencha todos os campos corretamente!</strong>";
+    return;
+  }
+
+  const tempoHoras = distancia / velocidade;
+  const horas = Math.floor(tempoHoras);
+  const minutos = Math.round((tempoHoras % 1) * 60);
+
+  dataHoraPosicao.setHours(dataHoraPosicao.getHours() + horas);
+  dataHoraPosicao.setMinutes(dataHoraPosicao.getMinutes() + minutos);
+
+  document.getElementById("resultado").innerText = `Horas a Navegar: ${horas}h:${minutos}m\nData de Chegada: ${dataHoraPosicao.toLocaleString("pt-BR", {day: "2-digit",month: "2-digit",year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false})}`;
+}
+</script>
+
+</body>
+</html>

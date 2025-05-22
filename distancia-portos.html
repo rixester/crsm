@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora de Distância entre Portos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      display: inline-block;
+    }
+
+    select, input {
+      margin: 10px;
+      padding: 8px;
+      width: 180px;
+    }
+
+    #map {
+      width: 100%;
+      height: 400px;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+    }
+
+    #distancia2, #tempo {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="content">
+  <h2>Calculadora de Distância e Tempo entre Portos</h2>
+
+  <label for="porto1">Porto 1:</label>
+  <input list="portos1" id="porto1">
+  <datalist id="portos1">
+    <option value="natal">
+    <option value="fortaleza">
+    <option value="suape">
+  </datalist>
+
+  <label for="porto2">Porto 2:</label>
+  <input list="portos2" id="porto2">
+  <datalist id="portos2">
+    <option value="natal">
+    <option value="fortaleza">
+    <option value="suape">
+  </datalist>
+
+  <br>
+
+  <label for="velocidade2">Velocidade (nós):</label>
+  <input type="number" id="velocidade2" placeholder="Velocidade">
+
+  <br>
+  <button onclick="calcularDistancia()">Calcular</button>
+
+  <p id="distancia2"></p>
+  <p id="tempo"></p>
+
+  <div id="map"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  const portos = {
+    "natal":      { lat: -5.7945, lon: -35.211 },
+    "fortaleza":  { lat: -3.717,  lon: -38.543 },
+    "suape":      { lat: -8.391,  lon: -34.963 }
+  };
+
+  const distancias = {
+    "natal - fortaleza": 150,
+    "natal - suape": 240,
+    "fortaleza - suape": 300
+  };
+
+  const pontos = {
+    "natal - fortaleza": [[-5.7945, -35.211], [-3.717, -38.543]],
+    "natal - suape": [[-5.7945, -35.211], [-8.391, -34.963]],
+    "fortaleza - suape": [[-3.717, -38.543], [-8.391, -34.963]]
+  };
+
+  let map = L.map('map').setView([-5.5, -36], 6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  let markers = [];
+  let polylines = [];
+
+  function limparMapa() {
+    markers.forEach(m => map.removeLayer(m));
+    polylines.forEach(p => map.removeLayer(p));
+    markers = [];
+    polylines = [];
+  }
+
+  function normalize(str) {
+    return str.trim().toLowerCase();
+  }
+
+  function calcularDistancia() {
+    const porto1 = normalize(document.getElementById("porto1").value);
+    const porto2 = normalize(document.getElementById("porto2").value);
+    const velocidade = parseFloat(document.getElementById("velocidade2").value);
+
+    if (!porto1 || !porto2 || porto1 === porto2 || isNaN(velocidade) || velocidade <= 0) {
+      alert("Preencha os campos corretamente.");
+      return;
+    }
+
+    let chave = `${porto1} - ${porto2}`;
+    if (!distancias[chave]) {
+      chave = `${porto2} - ${porto1}`;
+    }
+
+    const distanciaMN = distancias[chave];
+    const rota = pontos[chave];
+
+    if (!distanciaMN || !rota) {
+      alert("Distância ou rota não encontrada.");
+      return;
+    }
+
+    const tempoHoras = distanciaMN / velocidade;
+    const horas = Math.floor(tempoHoras);
+    const minutos = Math.round((tempoHoras % 1) * 60);
+
+    document.getElementById("distancia2").textContent = `Distância: ${distanciaMN} MN`;
+    document.getElementById("tempo").textContent = `Tempo estimado: ${horas}h ${minutos}m`;
+
+    limparMapa();
+
+    const marker1 = L.marker([portos[porto1].lat, portos[porto1].lon]).addTo(map).bindPopup(porto1).openPopup();
+    const marker2 = L.marker([portos[porto2].lat, portos[porto2].lon]).addTo(map).bindPopup(porto2);
+    const polyline = L.polyline(rota, { color: 'blue' }).addTo(map);
+
+    markers.push(marker1, marker2);
+    polylines.push(polyline);
+
+    map.fitBounds(polyline.getBounds());
+  }
+</script>
+
+</body>
+</html>
