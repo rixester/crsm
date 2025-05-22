@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Conversor LAT LONG (GMS)</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; background: #f4f4f9; }
+    input, select { margin: 5px; padding: 8px; width: 90px; }
+  </style>
+</head>
+<body>
+
+<h3>Conversor de LAT LONG (GMS para Decimal)</h3>
+
+<div>
+  Latitude: 
+  <input type="number" id="latGraus" placeholder="Graus">°
+  <input type="number" id="latMinutos" placeholder="Minutos">' 
+  <input type="number" id="latSegundos" placeholder="Segundos">"
+  <select id="latHemisferio">
+    <option value="N">N</option>
+    <option value="S">S</option>
+  </select>
+</div>
+
+<div>
+  Longitude: 
+  <input type="number" id="longGraus" placeholder="Graus">°
+  <input type="number" id="longMinutos" placeholder="Minutos">' 
+  <input type="number" id="longSegundos" placeholder="Segundos">"
+  <select id="longHemisferio">
+    <option value="E">E</option>
+    <option value="W">W</option>
+  </select>
+</div>
+
+<br>
+<div id="latDecimal"></div>
+<div id="longDecimal"></div>
+
+<script>
+function converterGMSparaDecimal() {
+  const latGraus = parseFloat(document.getElementById("latGraus").value) || 0;
+  const latMinutos = parseFloat(document.getElementById("latMinutos").value) || 0;
+  const latSegundos = parseFloat(document.getElementById("latSegundos").value) || 0;
+  const latHemisferio = document.getElementById("latHemisferio").value;
+
+  const longGraus = parseFloat(document.getElementById("longGraus").value) || 0;
+  const longMinutos = parseFloat(document.getElementById("longMinutos").value) || 0;
+  const longSegundos = parseFloat(document.getElementById("longSegundos").value) || 0;
+  const longHemisferio = document.getElementById("longHemisferio").value;
+
+  let latDecimal = latGraus + latMinutos / 60 + latSegundos / 3600;
+  let longDecimal = longGraus + longMinutos / 60 + longSegundos / 3600;
+
+  if (latHemisferio === "S") latDecimal *= -1;
+  if (longHemisferio === "W") longDecimal *= -1;
+
+  document.getElementById("latDecimal").textContent = "Lat (decimal): " + latDecimal.toFixed(6);
+  document.getElementById("longDecimal").textContent = "Long (decimal): " + longDecimal.toFixed(6);
+}
+
+document.querySelectorAll("input, select").forEach(el => {
+  el.addEventListener("input", converterGMSparaDecimal);
+});
+</script>
+
+</body>
+</html>
