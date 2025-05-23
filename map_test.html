@@ -38,6 +38,44 @@
   <!-- Leaflet Control Layers Tree JS -->
   <script src="https://unpkg.com/leaflet.control.layers.tree/L.Control.Layers.Tree.js"></script>
   <script>
+	async function fazerLogin() {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  try {
+    const response = await fetch('https://crsm.vercel.app/api/auth', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Esconde o overlay de login
+      document.getElementById('login-overlay').style.display = 'none';
+      // Armazena o token
+      localStorage.setItem('authToken', data.token);
+      // Carrega os dados do mapa
+      carregarDadosDoMapa();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  } catch (error) {
+    console.error('Erro:', error);
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+// Verifica se já está logado ao carregar a página
+window.onload = function() {
+  if (localStorage.getItem('authToken')) {
+    document.getElementById('login-overlay').style.display = 'none';
+    carregarDadosDoMapa();
+  }
+};
     // Inicialização do mapa
     const map = L.map('map').setView([-10, -40], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
