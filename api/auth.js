@@ -1,28 +1,26 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método não permitido' });
+  // Configura cabeçalhos CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
-  const { username, password } = req.body;
-
-  // Verifica contra variáveis de ambiente
-  if (username === process.env.ADMIN_USER && 
-      password === process.env.ADMIN_PASS) {
+  if (req.method === 'POST') {
+    const { username, password } = req.body;
     
-    // Gera um token seguro (simplificado - em produção use JWT)
-    const token = Buffer.from(`${username}:${Date.now()}`).toString('base64');
+    if (username === process.env.ADMIN_USER && 
+        password === process.env.ADMIN_PASS) {
+      return res.status(200).json({ 
+        success: true,
+        token: 'seu-token-gerado-aqui' 
+      });
+    }
     
-    // Armazena o token em um "banco de dados" em memória (simplificado)
-    // Em produção, use um banco de dados real
-    process.env.AUTH_TOKENS = process.env.AUTH_TOKENS 
-      ? `${process.env.AUTH_TOKENS},${token}` 
-      : token;
-
-    return res.status(200).json({ 
-      token,
-      user: username
-    });
+    return res.status(401).json({ error: 'Credenciais inválidas' });
   }
-
-  return res.status(401).json({ error: 'Credenciais inválidas' });
+  
+  return res.status(405).json({ error: 'Método não permitido' });
 }
