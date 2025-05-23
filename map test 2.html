@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Mapa Interativo com Controle Avançado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet Control Layers Tree CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.control.layers.tree/L.Control.Layers.Tree.css" />
+  <style>
+    body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100vw; }
+    #filtro {
+      position: absolute;
+      top: 10px;
+      left: 50px;
+      z-index: 1000;
+      background: white;
+      padding: 6px;
+      border-radius: 6px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div id="filtro">
+    <label>🔍 Filtrar casos: </label>
+    <input type="text" id="filtroTexto" placeholder="Palavra-chave" />
+    <button onclick="filtrarCasos()">Filtrar</button>
+    <button onclick="resetarCasos()">Limpar</button>
+  </div>
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet Control Layers Tree JS -->
+  <script src="https://unpkg.com/leaflet.control.layers.tree/L.Control.Layers.Tree.js"></script>
+  <script>
+    // Inicialização do mapa
+    const map = L.map('map').setView([-10, -40], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // URLs das abas da planilha
+    const urlPortos = 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Portos';
+    const urlAreas  = 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Áreas';
+    const urlCasos  = 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Casos';
+    const urlSararea  = 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Bases';
+
+    // Grupos de camadas
+    const portosGrupo = [];
+    const areasGrupo = [];
+    const casosGrupo = [];
+    const SarareaGrupo = [];
+
+    // Dados originais dos casos
+    let todosOsCasos = [];
+
+    // Função para carregar Portos
+    fetch(urlPortos).then(res => res.json()).then(data => {
+      data.forEach(p => {
+        const lat = parseFloat(p.Latitude);
+        const lon = parseFloat(p.Longitude);
+        const nome = p.Porto || p.Nome || 'Porto';
+        if (!isNaN(lat) && !isNaN(lon)) {
+          const marker = L.circleMarker([lat, lon], {"color": "#660066", "fill": true, "fillColor": "#660066", "fillOpacity": 0.5, "radius": 3, "stroke": true, "weight": 3})
+		  .bindPopup(`<b>${nome}</b>`,{ maxWidth: 600, minWidth: 200 });
+          portosGrupo.push({ label: nome, layer: marker });
+		  }
+      });
+      atualizarControleCamadas();
+    });
+
+    // Função para carregar Áreas
+    fetch(urlAreas).then(res => res.json()).then(data => {
+      data.forEach(area => {
+        const nome = area.Nome || 'Área';
+        const coordString = area.Coordenadas;
+        if (coordString) {
+          const pontos = coordString.split(';').map(par => {
+            const [lon, lat] = par.split(',').map(Number);
+            return [lat, lon];
+          });
+          const polygon = L.polygon(pontos, {
+            color: 'red',
+            fillOpacity: 0.3
+          }).bindPopup(`<b>${nome}</b>`);
+          areasGrupo.push({ label: nome, layer: polygon });
+        }
+      });
+      atualizarControleCamadas();
+    });
+
+    // Função para carregar Áreas
+    fetch(urlSararea).then(res => res.json()).then(data => {
+      data.forEach(area => {
+        const nome = area.Nome || 'Áreas Base';
+        const coordString = area.Coordenadas;
+        if (coordString) {
+          const pontos = coordString.split(';').map(par => {
+            const [lon, lat] = par.split(',').map(Number);
+            return [lat, lon];
+          });
+          const polygon = L.polygon(pontos, {
+            color: 'gray',
+            fillOpacity: 0.0
+          }).bindPopup(`<b>${nome}</b>`);
+          SarareaGrupo.push({ label: nome, layer: polygon });
+        }
+      });
+      atualizarControleCamadas();
+    });
+
+
+    // Função para carregar Casos
+    fetch(urlCasos).then(res => res.json()).then(data => {
+      todosOsCasos = data;
+      carregarCasos();
+    });
+
+    // Função para carregar Casos com agrupamento por tipo
+    function carregarCasos(filtro = '') {
+      casosGrupo.length = 0; // Limpa o grupo de casos
+
+      // Agrupar casos por tipo
+      const casosPorTipo = {};
+      todosOsCasos.forEach(caso => {
+        const tipo = caso.Tipo || 'Outro';
+        if (!casosPorTipo[tipo]) {
+          casosPorTipo[tipo] = [];
+        }
+        casosPorTipo[tipo].push(caso);
+      });
+
+      // Criar grupos por tipo
+      for (const tipo in casosPorTipo) {
+        const casos = casosPorTipo[tipo];
+        const subGrupo = [];
+
+        casos.forEach(caso => {
+          const lat = parseFloat(caso.Latitude);
+          const lon = parseFloat(caso.Longitude);
+          const titulo = caso.Título || 'Caso';
+          const texto = caso.Texto || '';
+          const imagem = caso.Imagem ? `<img src="${caso.Imagem}" style="width:100%; max-width:300px;" />` : '';
+          const conteudo = `${titulo} ${texto}`.toLowerCase();
+          const icons = caso.icons;
+
+          if (conteudo.includes(filtro.toLowerCase()) && !isNaN(lat) && !isNaN(lon)) {
+            const marker = L.marker([lat, lon], {
+              icon: L.divIcon({
+				className: 'custom-icon',
+				html: `<img src="${icons}" style="width: 10px; height: 10px;">`,
+				iconSize: [15, 15],
+				iconAnchor: [8, 8]
+              })
+            }).bindPopup(`<b>${titulo}</b><br>${texto}<br>${imagem}`);
+            subGrupo.push({ label: titulo, layer: marker });
+          }
+        });
+
+        if (subGrupo.length > 0) {
+          casosGrupo.push({ label: `${tipo} (${subGrupo.length})`, selectAllCheckbox: "Selecionar/Desmarcar todos",children: subGrupo });
+        }
+      }
+
+      atualizarControleCamadas();
+    }
+
+    // Funções de filtro
+    function filtrarCasos() {
+      const palavra = document.getElementById('filtroTexto').value;
+      carregarCasos(palavra);
+    }
+
+    function resetarCasos() {
+      document.getElementById('filtroTexto').value = '';
+      carregarCasos();
+    }
+
+    // Controle de camadas
+    let controleCamadas;
+
+    function atualizarControleCamadas() {
+      if (controleCamadas) {
+        map.removeControl(controleCamadas);
+      }
+
+      const treeLayers = {
+        label: "📊 Camadas",
+        selectAllCheckbox: "Selecionar/Desmarcar todos",
+        children: [
+          {
+            label: "🟢 Portos",
+			selectAllCheckbox: "Selecionar/Desmarcar todos",
+            children: portosGrupo
+          },
+          {
+            label: "🔴 Áreas",
+			selectAllCheckbox: "Selecionar/Desmarcar todos",
+            children: areasGrupo
+          },
+          {
+            label: "🟡 Casos",
+			selectAllCheckbox: "Selecionar/Desmarcar todos",
+            children: casosGrupo
+          },
+          {
+            label: "🟣 Linhas Base",
+			selectAllCheckbox: "Selecionar/Desmarcar todos",
+            children: SarareaGrupo
+          }
+        ]
+      };
+
+      controleCamadas = L.control.layers.tree(null, treeLayers, {
+        namedToggle: false,
+        selectorBack: false,
+        closedSymbol: "➕",
+        openedSymbol: "➖",
+        collapseAll: "Recolher",
+        expandAll: "Expandir"
+      }).addTo(map);
+    }
+  </script>
+</body>
+</html>
