@@ -21,99 +21,233 @@
       border-radius: 6px;
       box-shadow: 0 0 4px rgba(0,0,0,0.3);
     }
+    /* Novo estilo para o login */
+    #login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+    .login-box {
+      background: #333;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      text-align: center;
+    }
+    .login-input {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    .login-button {
+      width: 100%;
+      padding: 8px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
-<body><div id="login-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;justify-content:center;align-items:center;color:white;">
-  <div style="background:#333;padding:20px;border-radius:8px;width:300px;">
-    <h2>Acesso Restrito - CRSM</h2>
-    <input type="text" id="username" placeholder="Usuário" style="width:100%;margin-bottom:10px;padding:8px;">
-    <input type="password" id="password" placeholder="Senha" style="width:100%;margin-bottom:10px;padding:8px;">
-    <button onclick="fazerLogin()" style="width:100%;padding:8px;">Acessar</button>
-    <p id="login-error" style="color:red;display:none;">Credenciais inválidas</p>
+<body>
+  <!-- Overlay de Login -->
+  <div id="login-overlay">
+    <div class="login-box">
+      <h2>Acesso Restrito</h2>
+      <p>Esta aplicação requer autenticação</p>
+      <input type="text" id="username" class="login-input" placeholder="Usuário">
+      <input type="password" id="password" class="login-input" placeholder="Senha">
+      <button onclick="fazerLogin()" class="login-button">Entrar</button>
+      <p id="login-error" style="color: red; display: none;">Credenciais inválidas</p>
+    </div>
   </div>
-</div>
 
-  <!-- Leaflet JS -->
+  <!-- Conteúdo original (inicialmente escondido) -->
+  <div id="filtro" class="hidden">
+    <label>🔍 Filtrar casos: </label>
+    <input type="text" id="filtroTexto" placeholder="Palavra-chave" />
+    <button onclick="filtrarCasos()">Filtrar</button>
+    <button onclick="resetarCasos()">Limpar</button>
+    <button onclick="logout()" style="margin-left: 10px;">Sair</button>
+  </div>
+  <div id="map" class="hidden"></div>
+
+  <!-- Seus scripts JS originais -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Leaflet Control Layers Tree JS -->
   <script src="https://unpkg.com/leaflet.control.layers.tree/L.Control.Layers.Tree.js"></script>
   <script>
-	async function fazerLogin() {
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
-
-  try {
-    const response = await fetch('https://crsm.vercel.app/api/auth', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, password })
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      // Esconde o overlay de login
-      document.getElementById('login-overlay').style.display = 'none';
-      // Armazena o token
-      localStorage.setItem('authToken', data.token);
-      // Carrega os dados do mapa
-      carregarDadosDoMapa();
-    } else {
-      document.getElementById('login-error').style.display = 'block';
+    // =============================================
+    // SISTEMA DE AUTENTICAÇÃO
+    // =============================================
+    
+    // Configuração da API de autenticação
+    const AUTH_API_URL = 'https://crsm.vercel.app/api/auth';
+    
+    async function fazerLogin() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      try {
+        const response = await fetch(AUTH_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.token) {
+          // Login bem-sucedido
+          localStorage.setItem('authToken', data.token);
+          document.getElementById('login-overlay').classList.add('hidden');
+          document.getElementById('filtro').classList.remove('hidden');
+          document.getElementById('map').classList.remove('hidden');
+          
+          // Inicializa o mapa após login
+          inicializarMapa();
+        } else {
+          // Login falhou
+          document.getElementById('login-error').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Erro ao fazer login:', error);
+        document.getElementById('login-error').style.display = 'block';
+      }
     }
-  } catch (error) {
-    console.error('Erro:', error);
-    document.getElementById('login-error').style.display = 'block';
-  }
-}
-
-// Verifica se já está logado ao carregar a página
-window.onload = function() {
-  if (localStorage.getItem('authToken')) {
-    document.getElementById('login-overlay').style.display = 'none';
-    carregarDadosDoMapa();
-  }
-};
-    // Inicialização do mapa
-    const map = L.map('map').setView([-10, -40], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // URLs das abas da planilha
-    const urlPortos = 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Portos';
-    const urlAreas  = 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Áreas';
-    const urlCasos  = 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Casos';
-    const urlSararea  = 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Bases';
-
+    
+    function logout() {
+      localStorage.removeItem('authToken');
+      location.reload();
+    }
+    
+    // Verifica se já está logado ao carregar a página
+    window.onload = function() {
+      if (localStorage.getItem('authToken')) {
+        document.getElementById('login-overlay').classList.add('hidden');
+        document.getElementById('filtro').classList.remove('hidden');
+        document.getElementById('map').classList.remove('hidden');
+        inicializarMapa();
+      }
+    };
+    
+    // =============================================
+    // SISTEMA DO MAPA (MODIFICADO PARA USAR AUTENTICAÇÃO)
+    // =============================================
+    
+    let map; // Variável global do mapa
+    
+    function inicializarMapa() {
+      // Configuração inicial do mapa
+      map = L.map('map').setView([-10, -40], 5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+      
+      // Carrega os dados protegidos
+      carregarDadosProtegidos();
+    }
+    
+    async function carregarDadosProtegidos() {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        logout();
+        return;
+      }
+      
+      try {
+        // URLs das abas da planilha (protegidas por autenticação)
+        const urls = {
+          portos: 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Portos',
+          areas: 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Áreas',
+          casos: 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Casos',
+          sararea: 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Bases'
+        };
+        
+        // Carrega todos os dados em paralelo
+        const responses = await Promise.all([
+          fetchComAutenticacao(urls.portos),
+          fetchComAutenticacao(urls.areas),
+          fetchComAutenticacao(urls.casos),
+          fetchComAutenticacao(urls.sararea)
+        ]);
+        
+        // Processa os dados
+        processarPortos(responses[0]);
+        processarAreas(responses[1]);
+        processarCasos(responses[2]);
+        processarSararea(responses[3]);
+        
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        alert('Erro ao carregar dados. Tente novamente.');
+      }
+    }
+    
+    async function fetchComAutenticacao(url) {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.status === 401) {
+        // Não autorizado - faz logout
+        logout();
+        throw new Error('Não autorizado');
+      }
+      
+      return await response.json();
+    }
+    
+    // =============================================
+    // FUNÇÕES ORIGINAIS DO MAPA (AJUSTADAS)
+    // =============================================
+    
     // Grupos de camadas
     const portosGrupo = [];
     const areasGrupo = [];
     const casosGrupo = [];
     const SarareaGrupo = [];
-
-    // Dados originais dos casos
     let todosOsCasos = [];
-
-    // Função para carregar Portos
-    fetch(urlPortos).then(res => res.json()).then(data => {
+    
+    function processarPortos(data) {
       data.forEach(p => {
         const lat = parseFloat(p.Latitude);
         const lon = parseFloat(p.Longitude);
         const nome = p.Porto || p.Nome || 'Porto';
         if (!isNaN(lat) && !isNaN(lon)) {
-          const marker = L.circleMarker([lat, lon], {"color": "#660066", "fill": true, "fillColor": "#660066", "fillOpacity": 0.5, "radius": 3, "stroke": true, "weight": 3})
-		  .bindPopup(`<b>${nome}</b>`,{ maxWidth: 600, minWidth: 200 });
+          const marker = L.circleMarker([lat, lon], {
+            "color": "#660066",
+            "fill": true,
+            "fillColor": "#660066",
+            "fillOpacity": 0.5,
+            "radius": 3,
+            "stroke": true,
+            "weight": 3
+          }).bindPopup(`<b>${nome}</b>`, { maxWidth: 600, minWidth: 200 });
           portosGrupo.push({ label: nome, layer: marker });
-		  }
+        }
       });
       atualizarControleCamadas();
-    });
-
-    // Função para carregar Áreas
-    fetch(urlAreas).then(res => res.json()).then(data => {
+    }
+    
+    function processarAreas(data) {
       data.forEach(area => {
         const nome = area.Nome || 'Área';
         const coordString = area.Coordenadas;
@@ -130,10 +264,9 @@ window.onload = function() {
         }
       });
       atualizarControleCamadas();
-    });
-
-    // Função para carregar Áreas
-    fetch(urlSararea).then(res => res.json()).then(data => {
+    }
+    
+    function processarSararea(data) {
       data.forEach(area => {
         const nome = area.Nome || 'Áreas Base';
         const coordString = area.Coordenadas;
@@ -150,34 +283,25 @@ window.onload = function() {
         }
       });
       atualizarControleCamadas();
-    });
-
-
-    // Função para carregar Casos
-    fetch(urlCasos).then(res => res.json()).then(data => {
+    }
+    
+    function processarCasos(data, filtro = '') {
       todosOsCasos = data;
-      carregarCasos();
-    });
-
-    // Função para carregar Casos com agrupamento por tipo
-    function carregarCasos(filtro = '') {
-      casosGrupo.length = 0; // Limpa o grupo de casos
-
-      // Agrupar casos por tipo
+      casosGrupo.length = 0;
+      
       const casosPorTipo = {};
-      todosOsCasos.forEach(caso => {
+      data.forEach(caso => {
         const tipo = caso.Tipo || 'Outro';
         if (!casosPorTipo[tipo]) {
           casosPorTipo[tipo] = [];
         }
         casosPorTipo[tipo].push(caso);
       });
-
-      // Criar grupos por tipo
+      
       for (const tipo in casosPorTipo) {
         const casos = casosPorTipo[tipo];
         const subGrupo = [];
-
+        
         casos.forEach(caso => {
           const lat = parseFloat(caso.Latitude);
           const lon = parseFloat(caso.Longitude);
@@ -186,74 +310,77 @@ window.onload = function() {
           const imagem = caso.Imagem ? `<img src="${caso.Imagem}" style="width:100%; max-width:300px;" />` : '';
           const conteudo = `${titulo} ${texto}`.toLowerCase();
           const icons = caso.icons;
-
+          
           if (conteudo.includes(filtro.toLowerCase()) && !isNaN(lat) && !isNaN(lon)) {
             const marker = L.marker([lat, lon], {
               icon: L.divIcon({
-				className: 'custom-icon',
-				html: `<img src="${icons}" style="width: 10px; height: 10px;">`,
-				iconSize: [15, 15],
-				iconAnchor: [8, 8]
+                className: 'custom-icon',
+                html: `<img src="${icons}" style="width: 10px; height: 10px;">`,
+                iconSize: [15, 15],
+                iconAnchor: [8, 8]
               })
             }).bindPopup(`<b>${titulo}</b><br>${texto}<br>${imagem}`);
             subGrupo.push({ label: titulo, layer: marker });
           }
         });
-
+        
         if (subGrupo.length > 0) {
-          casosGrupo.push({ label: `${tipo} (${subGrupo.length})`, selectAllCheckbox: "Selecionar/Desmarcar todos",children: subGrupo });
+          casosGrupo.push({
+            label: `${tipo} (${subGrupo.length})`,
+            selectAllCheckbox: "Selecionar/Desmarcar todos",
+            children: subGrupo
+          });
         }
       }
-
+      
       atualizarControleCamadas();
     }
-
-    // Funções de filtro
+    
     function filtrarCasos() {
       const palavra = document.getElementById('filtroTexto').value;
-      carregarCasos(palavra);
+      processarCasos(todosOsCasos, palavra);
     }
-
+    
     function resetarCasos() {
       document.getElementById('filtroTexto').value = '';
-      carregarCasos();
+      processarCasos(todosOsCasos);
     }
-
+    
     // Controle de camadas
     let controleCamadas;
-
+    
     function atualizarControleCamadas() {
       if (controleCamadas) {
         map.removeControl(controleCamadas);
       }
-
+      
       const treeLayers = {
         label: "📊 Camadas",
         selectAllCheckbox: "Selecionar/Desmarcar todos",
         children: [
           {
             label: "🟢 Portos",
-			selectAllCheckbox: "Selecionar/Desmarcar todos",
+            selectAllCheckbox: "Selecionar/Desmarcar todos",
             children: portosGrupo
           },
           {
             label: "🔴 Áreas",
-			selectAllCheckbox: "Selecionar/Desmarcar todos",
+            selectAllCheckbox: "Selecionar/Desmarcar todos",
             children: areasGrupo
           },
           {
             label: "🟡 Casos",
-			selectAllCheckbox: "Selecionar/Desmarcar todos",
+            selectAllCheckbox: "Selecionar/Desmarcar todos",
             children: casosGrupo
           },
           {
             label: "🟣 Linhas Base",
-			selectAllCheckbox: "Selecionar/Desmarcar todos",
+            selectAllCheckbox: "Selecionar/Desmarcar todos",
             children: SarareaGrupo
           }
         ]
       };
-
+      
       controleCamadas = L.control.layers.tree(null, treeLayers, {
         namedToggle: false,
         selectorBack: false,
