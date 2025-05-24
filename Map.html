@@ -85,9 +85,9 @@
         const Pais = p.Pais;
         const unCode = p.unCode;
         if (!isNaN(lat) && !isNaN(lon)) {
-          const marker = L.circleMarker([lat, lon], {"color": "#660066", "fill": true, "fillColor": "#660066", "fillOpacity": 0.5, "radius": 3, "stroke": true, "weight": 3})
-		  .bindPopup(`<b>${nome} - ${Pais}</b>`,{ maxWidth: 600, minWidth: 200 });
-          portosmundiaisGrupo.push({ label: nome, layer: marker });
+          const marker = L.circleMarker([lat, lon], {"color": "#a8323e", "fill": true, "fillColor": "#a8323e", "fillOpacity": 0.5, "radius": 3, "stroke": true, "weight": 3})
+		  .bindPopup(`<b>${nome} - ${Pais}</b><br>${lat},${long}`,{ maxWidth: 600, minWidth: 200 });
+          portosmundiaisGrupo.push({ label: ${nome} - ${Pais}, layer: marker });
 		  }
       });
       atualizarControleCamadas2();
