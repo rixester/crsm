@@ -206,10 +206,6 @@
         map.removeControl(controleCamadas);
       }
 	    
-    function atualizarControleCamadas2() {
-      if (controleCamadas2) {
-        map.removeControl(controleCamadas2);
-      }
 
       const treeLayers = {
         label: "📊 Camadas",
@@ -238,6 +234,25 @@
         ]
       };
 
+	    
+      controleCamadas = L.control.layers.tree(null, treeLayers, {
+        namedToggle: false,
+        selectorBack: false,
+        closedSymbol: "➕",
+        openedSymbol: "➖",
+        collapseAll: "Recolher",
+        expandAll: "Expandir"
+      }).addTo(map);
+
+}
+	    
+    function atualizarControleCamadas2() {
+      if (controleCamadas2) {
+        map.removeControl(controleCamadas2);
+      }
+	    
+	    
+
 const treeLayers2 = {
         label: "📊 Camadas",
         selectAllCheckbox: "Selecionar/Desmarcar todos",
@@ -249,17 +264,6 @@ const treeLayers2 = {
           }
         ]
       };
-
-	    
-      controleCamadas = L.control.layers.tree(null, treeLayers, {
-        namedToggle: false,
-        selectorBack: false,
-        closedSymbol: "➕",
-        openedSymbol: "➖",
-        collapseAll: "Recolher",
-        expandAll: "Expandir"
-      }).addTo(map);
-
 	    
       controleCamadas2 = L.control.layers.tree(null, treeLayers2, {
         namedToggle: false,
