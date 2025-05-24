@@ -48,12 +48,14 @@
     const urlAreas  = 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Áreas';
     const urlCasos  = 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Casos';
     const urlSararea  = 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Bases';
+    const urlPortosmundiais  = 'https://opensheet.vercel.app/1NeWdSYOcd3DI9l2yPA507lveb-sKvuJ45ABAXPfKr0o/Portos_mundiais';
 
     // Grupos de camadas
     const portosGrupo = [];
     const areasGrupo = [];
     const casosGrupo = [];
     const SarareaGrupo = [];
+    const portosmundiaisGrupo = [];
 
     // Dados originais dos casos
     let todosOsCasos = [];
@@ -71,6 +73,21 @@
 		  }
       });
       atualizarControleCamadas();
+    });
+
+	   // Função para carregar Portos mundiais
+    fetch(urlPortosmundiais).then(res => res.json()).then(data => {
+      data.forEach(p => {
+        const lat = parseFloat(p.Latitude);
+        const lon = parseFloat(p.Longitude);
+        const nome = p.Porto || p.Nome || 'Porto';
+        if (!isNaN(lat) && !isNaN(lon)) {
+          const marker = L.circleMarker([lat, lon], {"color": "#660066", "fill": true, "fillColor": "#660066", "fillOpacity": 0.5, "radius": 3, "stroke": true, "weight": 3})
+		  .bindPopup(`<b>${nome}</b>`,{ maxWidth: 600, minWidth: 200 });
+          portosmundiaisGrupo.push({ label: nome, layer: marker });
+		  }
+      });
+      atualizarControleCamadas2();
     });
 
     // Função para carregar Áreas
@@ -182,10 +199,16 @@
 
     // Controle de camadas
     let controleCamadas;
+    let controleCamadas2;
 
     function atualizarControleCamadas() {
       if (controleCamadas) {
         map.removeControl(controleCamadas);
+      }
+	    
+    function atualizarControleCamadas2() {
+      if (controleCamadas2) {
+        map.removeControl(controleCamadas2);
       }
 
       const treeLayers = {
@@ -215,7 +238,30 @@
         ]
       };
 
+const treeLayers2 = {
+        label: "📊 Camadas",
+        selectAllCheckbox: "Selecionar/Desmarcar todos",
+        children: [
+          {
+            label: "🟢 Portos",
+			selectAllCheckbox: "Selecionar/Desmarcar todos",
+            children: portosmundiaisGrupo
+          }
+        ]
+      };
+
+	    
       controleCamadas = L.control.layers.tree(null, treeLayers, {
+        namedToggle: false,
+        selectorBack: false,
+        closedSymbol: "➕",
+        openedSymbol: "➖",
+        collapseAll: "Recolher",
+        expandAll: "Expandir"
+      }).addTo(map);
+
+	    
+      controleCamadas2 = L.control.layers.tree(null, treeLayers2, {
         namedToggle: false,
         selectorBack: false,
         closedSymbol: "➕",
