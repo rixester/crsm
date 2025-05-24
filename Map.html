@@ -111,17 +111,21 @@ let controleCamadas2;
             });
         }
     });
-	   });
+
     
     // Agora transforma o objeto portosPorPais na estrutura hierárquica
-    const treeChildren = Object.keys(portosPorPais).map(pais => {
+ const treeChildren = Object.keys(portosPorPais)
+    .sort() // Ordena os países alfabeticamente
+    .map(pais => {
         return {
             label: `🌎 ${pais}`,
             selectAllCheckbox: "Selecionar/Desmarcar todos",
             children: portosPorPais[pais]
         };
     });
-    
+
+
+		   
     // Atualiza a variável global com a estrutura hierárquica
     portosHierarquia = treeChildren;
     atualizarControleCamadas2();
