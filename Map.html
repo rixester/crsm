@@ -74,28 +74,85 @@
       });
       atualizarControleCamadas();
     });
-
+let controleCamadas2;
 	   fetch(urlPortosmundiais).then(res => res.json()).then(data => {
+    // Objeto para agrupar portos por país
+    const portosPorPais = {};
+    
     data.forEach(p => {
         const lat = parseFloat(p.Latitude);
         const lon = parseFloat(p.Longitude);
         const nome = p.Porto;
-        const portNo = p.portNo;
         const Pais = p.Pais;
-        const unCode = p.unCode;
+        
         if (!isNaN(lat) && !isNaN(lon)) {
-            const marker = L.circleMarker([lat, lon], {"color": "#a8323e", "fill": true, "fillColor": "#a8323e", "fillOpacity": 0.5, "radius": 3, "stroke": true, "weight": 3})
-                .bindPopup(`<b>${nome} - ${Pais}</b><br>${lat},${lon}`, { maxWidth: 600, minWidth: 200 });
+            const marker = L.circleMarker([lat, lon], {
+                "color": "#a8323e",
+                "fill": true,
+                "fillColor": "#a8323e",
+                "fillOpacity": 0.5,
+                "radius": 3,
+                "stroke": true,
+                "weight": 3
+            }).bindPopup(`<b>${nome} - ${Pais}</b><br>${lat},${lon}`, { 
+                maxWidth: 600, 
+                minWidth: 200 
+            });
             
-            // Modifique esta linha para incluir as informações no formato desejado
-            portosmundiaisGrupo.push({ 
-                label: `${nome} - ${Pais} (${lat.toFixed(4)},${lon.toFixed(4)})`, 
-                layer: marker 
+            // Se o país ainda não existe no objeto, cria uma entrada para ele
+            if (!portosPorPais[Pais]) {
+                portosPorPais[Pais] = [];
+            }
+            
+            // Adiciona o porto ao país correspondente
+            portosPorPais[Pais].push({
+                label: `${nome} (${lat.toFixed(4)},${lon.toFixed(4)})`,
+                layer: marker
             });
         }
     });
+	   });
+    
+    // Agora transforma o objeto portosPorPais na estrutura hierárquica
+    const treeChildren = Object.keys(portosPorPais).map(pais => {
+        return {
+            label: `🌎 ${pais}`,
+            selectAllCheckbox: "Selecionar/Desmarcar todos",
+            children: portosPorPais[pais]
+        };
+    });
+    
+    // Atualiza a variável global com a estrutura hierárquica
+    portosHierarquia = treeChildren;
     atualizarControleCamadas2();
 });
+
+function atualizarControleCamadas2() {
+    if (controleCamadas2) {
+        map.removeControl(controleCamadas2);
+    }
+
+    const treeLayers2 = {
+        label: "📊 Camadas",
+        selectAllCheckbox: "Selecionar/Desmarcar todos",
+        children: [
+            {
+                label: "🛳️ Portos por País",
+                selectAllCheckbox: "Selecionar/Desmarcar todos",
+                children: portosHierarquia
+            }
+        ]
+    };
+    
+    controleCamadas2 = L.control.layers.tree(null, treeLayers2, {
+        namedToggle: false,
+        selectorBack: false,
+        closedSymbol: "➕",
+        openedSymbol: "➖",
+        collapseAll: "Recolher",
+        expandAll: "Expandir"
+    }).addTo(map);
+}
 
     // Função para carregar Áreas
     fetch(urlAreas).then(res => res.json()).then(data => {
@@ -206,7 +263,7 @@
 
     // Controle de camadas
     let controleCamadas;
-    let controleCamadas2;
+    
 
     function atualizarControleCamadas() {
       if (controleCamadas) {
@@ -253,33 +310,6 @@
 
 }
 	    
-    function atualizarControleCamadas2() {
-      if (controleCamadas2) {
-        map.removeControl(controleCamadas2);
-      }
-	    
-	    
-
-const treeLayers2 = {
-        label: "📊 Camadas",
-        selectAllCheckbox: "Selecionar/Desmarcar todos",
-        children: [
-          {
-            label: "🟢 Portos",
-			selectAllCheckbox: "Selecionar/Desmarcar todos",
-            children: portosmundiaisGrupo
-          }
-        ]
-      };
-	    
-      controleCamadas2 = L.control.layers.tree(null, treeLayers2, {
-        namedToggle: false,
-        selectorBack: false,
-        closedSymbol: "➕",
-        openedSymbol: "➖",
-        collapseAll: "Recolher",
-        expandAll: "Expandir"
-      }).addTo(map);
     }
   </script>
 </body>
