@@ -80,10 +80,13 @@
       data.forEach(p => {
         const lat = parseFloat(p.Latitude);
         const lon = parseFloat(p.Longitude);
-        const nome = p.Porto || p.Nome || 'Porto';
+        const nome = p.Porto;
+        const portNo = p.portNo;
+        const Pais = p.Pais;
+        const unCode = p.unCode;
         if (!isNaN(lat) && !isNaN(lon)) {
           const marker = L.circleMarker([lat, lon], {"color": "#660066", "fill": true, "fillColor": "#660066", "fillOpacity": 0.5, "radius": 3, "stroke": true, "weight": 3})
-		  .bindPopup(`<b>${nome}</b>`,{ maxWidth: 600, minWidth: 200 });
+		  .bindPopup(`<b>${nome} - ${Pais}</b>`,{ maxWidth: 600, minWidth: 200 });
           portosmundiaisGrupo.push({ label: nome, layer: marker });
 		  }
       });
