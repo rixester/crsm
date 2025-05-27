@@ -7,9 +7,23 @@
     font-family: 'Poppins', sans-serif;
 }
 
+#map { height: 80vh; width: 80vw; }
+
+#filtro {
+      position: absolute;
+      top: 70px;
+      left: 145px;
+      z-index: 1000;
+      background: white;
+      padding: 6px;
+      border-radius: 6px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.3);
+    }
 body {
+    margin: 0; 
+    padding: 0;
     display: flex;
-    min-height: 100vh;
+    min-height: 90vh;
     background-color: #e3e9f7;
 }
 
