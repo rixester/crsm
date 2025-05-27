@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <title>Mapa Interativo com Controle Avançado</title>
+  <title>v.006. Mapa Interativo</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -12,7 +12,7 @@
   <!--<link rel="stylesheet" href="src/css/styles.css">-->
   
 <style>
-/* V.004 - Responsivo */
+/* V.005 - Responsivo */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 * {
@@ -388,23 +388,29 @@ body {
                 </p>
             </div>
 <ul id="side_items">
- <li class="side-item "><a href="#"><i class="fa-solid fa-landmark"></i>
+ <li class="side-item "><a href="index.html"><i class="fa-solid fa-landmark"></i>
   <span class="item-description">Inicio</span></a>
  </li>
  <li class="side-item active"><a href="#"><i class="fa-solid fa-globe"></i>
-  <span class="item-description">Usuários</span></a>
+  <span class="item-description">Mapa Interativo</span></a>
  </li>
- <li class="side-item"><a href="#"><i class="fa-solid fa-bell"></i>
-  <span class="item-description">Notificações</span></a>
+ <li class="side-item"><a href="calculadora.html"><i class="fa-solid fa-calculator"></i>
+  <span class="item-description">Calculadora</span></a>
  </li>  
- <li class="side-item"><a href="#"><i class="fa-solid fa-box"></i>
-  <span class="item-description">Produtos</span></a>
+ <li class="side-item"><a href="consulta-mmsi.html"><i class="fa-solid fa-flag"></i>
+  <span class="item-description">Consulta MMSI</span></a>
  </li>  
- <li class="side-item"><a href="#"><i class="fa-solid fa-image"></i>
-  <span class="item-description">Imagens</span></a>
+ <li class="side-item"><a href="conversor-gms.html"><i class="fa-solid fa-compass"></i>
+  <span class="item-description">Conversor(GMS)</span></a>
  </li>
- <li class="side-item"><a href="#"><i class="fa-solid fa-gear"></i>
-  <span class="item-description">Configurações</span></a>
+ <li class="side-item"><a href="conversor-decimal.html"><i class="fa-solid fa-gear"></i>
+  <span class="item-description">Conversor(DEC)</span></a>
+ </li>
+ <li class="side-item"><a href="distancia-portos.html"><i class="fa-solid fa-house-flood-water-circle-arrow-right"></i>
+  <span class="item-description">Distancia Portos</span></a>
+ </li>
+ <li class="side-item"><a href="Interceptação.html"><i class="fa-solid fa-arrows-to-circle"></i>
+  <span class="item-description">Interceptação</span></a>
  </li>
 </ul>
         </div>
@@ -423,7 +429,7 @@ body {
     </nav>
     
     <div id="main-content">
-        <h1>Mapa interativo V0.005</h1>
+        <h1>Mapa Interativo</h1>
         <div id="filtro">
             <label>🔍 Filtrar casos: </label>
             <input type="text" id="filtroTexto" placeholder="Palavra-chave" />
