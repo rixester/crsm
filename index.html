@@ -2,17 +2,39 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Página Inicial - CRSM</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      background: #f0f2f5;
-      font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      color: #333;
-    }
+  <title>CRSM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet Control Layers Tree CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.control.layers.tree/L.Control.Layers.Tree.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+:root {
+  --primary-color: #4f46e5;
+  --sidebar-width: 80px;
+  --sidebar-expanded-width: 250px;
+  --header-height: 60px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #e3e9f7;
+    display: flex;
+    flex-direction: column;
+}
 
     h1 {
       text-align: center;
@@ -86,11 +108,379 @@
     .card-button:hover {
       background: #2980b9;
     }
-  </style>
+/* Container principal */
+#app-container {
+    display: flex;
+    flex: 1;
+    height: 100vh;
+}
+
+/* Sidebar */
+#sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: #ffffff;
+    border-radius: 0px 10px 0px 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.5s;
+    position: relative;
+    z-index: 10;
+    overflow: hidden;
+}
+
+#sidebar.open-sidebar {
+    width: var(--sidebar-expanded-width);
+}
+
+#sidebar_content {
+    padding: 12px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Conteúdo principal */
+#main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    padding: 20px;
+    background-color: #f5f7fa;
+}
+
+/* Estilos para a calculadora */
+.calculator-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 25px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.calculator-container h1 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.calculator-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group input {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+#resultado {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    border-left: 4px solid var(--primary-color);
+    font-size: 16px;
+    white-space: pre-line;
+}
+
+/* Estilos comuns da sidebar */
+#user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+
+#user_avatar {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 20px;
+}
+
+#user_infos {
+    display: flex;
+    flex-direction: column;
+}
+
+#user_infos span:last-child {
+    color: #6b6b6b;
+    font-size: 12px;
+}
+
+#side_items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    list-style: none;
+    margin-top: 20px;
+}
+
+.side-item {
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.side-item.active {
+    background-color: var(--primary-color);
+}
+
+.side-item:hover:not(.active),
+#logout_btn:hover {
+    background-color: #e3e9f7;
+}
+
+.side-item a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    color: #0a0a0a;
+}
+
+.side-item.active a {
+    color: #e3e9f7;
+}
+
+.side-item a i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+}
+
+#logout {
+    border-top: 1px solid #e3e9f7;
+    padding: 12px;
+}
+
+#logout_btn {
+    border: none;
+    padding: 12px;
+    font-size: 14px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    border-radius: 8px;
+    text-align: start;
+    cursor: pointer;
+    background-color: transparent;
+    width: 100%;
+}
+
+#open_btn {
+    position: absolute;
+    top: 20px;
+    right: -12px;
+    background-color: var(--primary-color);
+    color: #e3e9f7;
+    border-radius: 100%;
+    width: 24px;
+    height: 24px;
+    border: 2px solid white;
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+#open_btn:hover {
+    transform: scale(1.1);
+    background-color: #4338ca;
+}
+
+#open_btn_icon {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.open-sidebar #open_btn_icon {
+    transform: rotate(180deg);
+}
+
+.item-description {
+    width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    transition: width .6s;
+}
+
+#sidebar.open-sidebar .item-description {
+    width: 150px;
+    margin-left: 10px;
+}
+
+/* Media queries para dispositivos móveis */
+@media (max-width: 768px) {
+    #app-container {
+        flex-direction: column;
+    }
+    
+    #sidebar {
+        width: 100%;
+        height: auto;
+        border-radius: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    #sidebar.open-sidebar {
+        width: 100%;
+    }
+    
+    #sidebar_content {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        padding: 8px;
+    }
+    
+    #user {
+        display: none;
+    }
+    
+    #side_items {
+        flex-direction: row;
+        flex-wrap: wrap;
+        margin-top: 0;
+        gap: 5px;
+    }
+    
+    .side-item {
+        padding: 8px 12px;
+    }
+    
+    #logout {
+        border-top: none;
+        padding: 8px;
+        margin-right: 25px;
+    }
+    
+    #open_btn {
+        display: flex;
+        top: 10px;
+        right: 10px;
+    }
+    
+    #sidebar .item-description {
+        width: auto !important;
+        display: none;
+    }
+    
+    #sidebar.open-sidebar .item-description {
+        display: inline;
+    }
+    
+    .calculator-container {
+        margin-top: 20px;
+        padding: 15px;
+    }
+}
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 480px) {
+    .calculator-form {
+        gap: 10px;
+    }
+    
+    .form-group input {
+        padding: 8px 12px;
+    }
+    
+    #side_items {
+        gap: 3px;
+    }
+    
+    .side-item {
+        padding: 6px 8px;
+    }
+}
+  
+</style>
 </head>
 <body>
-  <h1>Bem-vindo ao CRSM!</h1>
-  <div class="container">
+<div id="app-container">
+    <nav id="sidebar">
+        <div id="sidebar_content">
+            <div id="user">
+                <img src="http://rixester.github.io/CRSM/IMG/avatar.png" id="user_avatar" alt="Avatar">
+                <p id="user_infos">
+                    <span class="item-description">CRSM</span>
+                    <span class="item-description">COM3DN</span>
+                </p>
+            </div>
+            <ul id="side_items">
+                <li class="side-item active"><a href="index.html"><i class="fa-solid fa-landmark"></i>
+                    <span class="item-description">Inicio</span></a>
+                </li>
+                <li class="side-item"><a href="Map.html"><i class="fa-solid fa-globe"></i>
+                    <span class="item-description">Mapa Interativo</span></a>
+                </li>
+                <li class="side-item "><a href="calculadora.html"><i class="fa-solid fa-calculator"></i>
+                    <span class="item-description">Calculadora</span></a>
+                </li>  
+                <li class="side-item"><a href="consulta-mmsi.html"><i class="fa-solid fa-flag"></i>
+                    <span class="item-description">Consulta MMSI</span></a>
+                </li>  
+                <li class="side-item"><a href="conversor-gms.html"><i class="fa-solid fa-compass"></i>
+                    <span class="item-description">Conversor(GMS)</span></a>
+                </li>
+                <li class="side-item"><a href="conversor-decimal.html"><i class="fa-solid fa-gear"></i>
+                    <span class="item-description">Conversor(DEC)</span></a>
+                </li>
+                <li class="side-item"><a href="distancia-portos.html"><i class="fa-solid fa-house-flood-water-circle-arrow-right"></i>
+                    <span class="item-description">Distancia Portos</span></a>
+                </li>
+                <li class="side-item"><a href="Interceptação.html"><i class="fa-solid fa-arrows-to-circle"></i>
+                    <span class="item-description">Interceptação</span></a>
+                </li>
+            </ul>
+        </div>
+        
+        <div id="logout">
+            <button id="logout_btn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span class="item-description">Logout</span>
+            </button>
+        </div>
+        
+        <button id="open_btn">
+            <i id="open_btn_icon" class="fa-solid fa-chevron-right"></i>
+        </button>
+    </nav>
+    
+   <div id="main-content">
+        <div class="calculator-container">
+              <h1>Bem-vindo ao CRSM!</h1>
+ <div class="container">
     <a class="card" href="Map.html">
       <img class="card-image" src="IMG/thumbnail_map.png" alt="Mapa de Casos">
       <div class="card-title">Mapa de Casos</div>
@@ -127,6 +517,36 @@
       <div class="card-desc">Calcule distância e tempo entre portos marítimos com rapidez.</div>
       <div class="card-button">Acessar</div>
     </a>
-  </div>
+  </div>  
+        </div>
+    </div>
+</div>
+
+
+ 
+
+  <script>
+document.getElementById('open_btn').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('open-sidebar');
+});
+
+// Ajustar o layout ao redimensionar
+window.addEventListener('resize', function() {
+    const isMobile = window.innerWidth <= 768;
+    const sidebar = document.getElementById('sidebar');
+    
+    if (isMobile && sidebar.classList.contains('open-sidebar')) {
+        sidebar.classList.remove('open-sidebar');
+    }
+});
+
+// Inicializar
+window.addEventListener('load', function() {
+    // Definir data/hora atual como padrão
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('dataHoraPosicao').value = now.toISOString().slice(0, 16);
+});
+</script>
 </body>
 </html>
