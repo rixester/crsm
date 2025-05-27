@@ -3,17 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <title>v0.1 Calculadora de Tempo e Distância</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <!-- Leaflet Control Layers Tree CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.control.layers.tree/L.Control.Layers.Tree.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!--<link rel="stylesheet" href="src/css/styles.css">-->
   
 <style>
-/* V.005 - Responsivo */
+/* V.006 - Padronizado */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+:root {
+  --primary-color: #4f46e5;
+  --sidebar-width: 80px;
+  --sidebar-expanded-width: 250px;
+  --header-height: 60px;
+}
 
 * {
     margin: 0;
@@ -35,13 +41,13 @@ body {
 #app-container {
     display: flex;
     flex: 1;
-    height: calc(100vh - 60px); /* Ajuste se tiver header/footer */
+    height: 100vh;
 }
 
 /* Sidebar */
 #sidebar {
-    width: 80px;
-    height: calc(100vh - 50px);
+    width: var(--sidebar-width);
+    height: 100vh;
     background-color: #ffffff;
     border-radius: 0px 10px 0px 0px;
     display: flex;
@@ -54,7 +60,7 @@ body {
 }
 
 #sidebar.open-sidebar {
-    width: 250px;
+    width: var(--sidebar-expanded-width);
 }
 
 #sidebar_content {
@@ -68,72 +74,68 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    transition: margin-left 0.3s;
-    position: relative;
+    overflow: auto;
+    padding: 20px;
+    background-color: #f5f7fa;
 }
 
-/* Mapa */
-#map-container {
-    top: -50px;
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-}
-
-#map {
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-/* Filtro */
-#filtro {
-    position: relative;
-    top: 5px;
-    left: 50px;
-    z-index: 1000;
+/* Estilos para a calculadora */
+.calculator-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 25px;
     background: white;
-    padding: 8px 12px;
-    border-radius: 8px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.2);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.calculator-container h1 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.calculator-form {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    max-width: calc(50% - 20px);
+    flex-direction: column;
+    gap: 15px;
 }
 
-#filtro label {
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 5px;
     font-weight: 500;
-    margin-right: 5px;
+    color: #333;
 }
 
-#filtro input {
-    flex: 1;
-    min-width: 120px;
-    padding: 6px 10px;
+.form-group input {
+    padding: 10px 15px;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 5px;
+    font-size: 16px;
 }
 
-#filtro button {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    background-color: #4f46e5;
-    color: white;
-    cursor: pointer;
-    white-space: nowrap;
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
 }
 
-#filtro button:hover {
-    background-color: #4338ca;
+#resultado {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    border-left: 4px solid var(--primary-color);
+    font-size: 16px;
+    white-space: pre-line;
 }
 
-/* Estilos da sidebar (mantidos do seu código original com pequenos ajustes) */
+/* Estilos comuns da sidebar */
 #user {
     display: flex;
     align-items: center;
@@ -173,7 +175,7 @@ body {
 }
 
 .side-item.active {
-    background-color: #4f46e5;
+    background-color: var(--primary-color);
 }
 
 .side-item:hover:not(.active),
@@ -220,20 +222,20 @@ body {
 
 #open_btn {
     position: absolute;
-    top: 2px;
-    right: 2px; /* Aumentei um pouco para ficar mais para fora */
-    background-color: #4f46e5;
+    top: 20px;
+    right: -12px;
+    background-color: var(--primary-color);
     color: #e3e9f7;
     border-radius: 100%;
-    width: 24px; /* Aumentei o tamanho */
+    width: 24px;
     height: 24px;
-    border: 2px solid white; /* Borda para destacar */
+    border: 2px solid white;
     cursor: pointer;
-    z-index: 9000; /* Garante que fique por cima */
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sombra para profundidade */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     transition: all 0.3s ease;
 }
 
@@ -243,7 +245,7 @@ body {
 }
 
 #open_btn_icon {
-    font-size: 12px; /* Tamanho do ícone aumentado */
+    font-size: 12px;
     transition: transform 0.3s ease;
 }
 
@@ -269,7 +271,6 @@ body {
 @media (max-width: 768px) {
     #app-container {
         flex-direction: column;
-        height: auto;
     }
     
     #sidebar {
@@ -303,21 +304,19 @@ body {
     }
     
     .side-item {
-        padding: 10px 30px;
-		
+        padding: 8px 12px;
     }
     
     #logout {
         border-top: none;
         padding: 8px;
-		margin-right: 25px;
-		
+        margin-right: 25px;
     }
     
     #open_btn {
-        display: one;
-        top: 2px;
-        right: 5px;
+        display: flex;
+        top: 10px;
+        right: 10px;
     }
     
     #sidebar .item-description {
@@ -329,48 +328,28 @@ body {
         display: inline;
     }
     
-    #filtro {
-        top: 0px;
-        left: 5px;
-        right: 5px;
-        max-width: none;
-    }
-    
-    #filtro input {
-        min-width: 0;
-        flex: 1 1 100%;
-    }
-    
-    #filtro button {
-        flex: 1;
-    }
-    #map-container {
-    top: 2px;
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-}
-    main h1 {
-        font-size: 1.5rem;
-        padding: 40px;
+    .calculator-container {
+        margin-top: 20px;
+        padding: 15px;
     }
 }
 
 /* Ajustes para telas muito pequenas */
 @media (max-width: 480px) {
-    #filtro {
-        flex-direction: column;
-        gap: 2px;
+    .calculator-form {
+        gap: 10px;
     }
     
-    #filtro label {
-        width: 100%;
-        text-align: center;
+    .form-group input {
+        padding: 8px 12px;
     }
     
-    #filtro input,
-    #filtro button {
-        width: 100%;
+    #side_items {
+        gap: 3px;
+    }
+    
+    .side-item {
+        padding: 6px 8px;
     }
 }
 </style>
@@ -381,38 +360,37 @@ body {
         <div id="sidebar_content">
             <div id="user">
                 <img src="http://rixester.github.io/CRSM/IMG/avatar.png" id="user_avatar" alt="Avatar">
-				
                 <p id="user_infos">
                     <span class="item-description">CRSM</span>
                     <span class="item-description">COM3DN</span>
                 </p>
             </div>
-<ul id="side_items">
- <li class="side-item "><a href="index.html"><i class="fa-solid fa-landmark"></i>
-  <span class="item-description">Inicio</span></a>
- </li>
- <li class="side-item active"><a href="#"><i class="fa-solid fa-globe"></i>
-  <span class="item-description">Mapa Interativo</span></a>
- </li>
- <li class="side-item"><a href="calculadora.html"><i class="fa-solid fa-calculator"></i>
-  <span class="item-description">Calculadora</span></a>
- </li>  
- <li class="side-item"><a href="consulta-mmsi.html"><i class="fa-solid fa-flag"></i>
-  <span class="item-description">Consulta MMSI</span></a>
- </li>  
- <li class="side-item"><a href="conversor-gms.html"><i class="fa-solid fa-compass"></i>
-  <span class="item-description">Conversor(GMS)</span></a>
- </li>
- <li class="side-item"><a href="conversor-decimal.html"><i class="fa-solid fa-gear"></i>
-  <span class="item-description">Conversor(DEC)</span></a>
- </li>
- <li class="side-item"><a href="distancia-portos.html"><i class="fa-solid fa-house-flood-water-circle-arrow-right"></i>
-  <span class="item-description">Distancia Portos</span></a>
- </li>
- <li class="side-item"><a href="Interceptação.html"><i class="fa-solid fa-arrows-to-circle"></i>
-  <span class="item-description">Interceptação</span></a>
- </li>
-</ul>
+            <ul id="side_items">
+                <li class="side-item"><a href="index.html"><i class="fa-solid fa-landmark"></i>
+                    <span class="item-description">Inicio</span></a>
+                </li>
+                <li class="side-item"><a href="Map.html"><i class="fa-solid fa-globe"></i>
+                    <span class="item-description">Mapa Interativo</span></a>
+                </li>
+                <li class="side-item active"><a href="calculadora.html"><i class="fa-solid fa-calculator"></i>
+                    <span class="item-description">Calculadora</span></a>
+                </li>  
+                <li class="side-item"><a href="consulta-mmsi.html"><i class="fa-solid fa-flag"></i>
+                    <span class="item-description">Consulta MMSI</span></a>
+                </li>  
+                <li class="side-item"><a href="conversor-gms.html"><i class="fa-solid fa-compass"></i>
+                    <span class="item-description">Conversor(GMS)</span></a>
+                </li>
+                <li class="side-item"><a href="conversor-decimal.html"><i class="fa-solid fa-gear"></i>
+                    <span class="item-description">Conversor(DEC)</span></a>
+                </li>
+                <li class="side-item"><a href="distancia-portos.html"><i class="fa-solid fa-house-flood-water-circle-arrow-right"></i>
+                    <span class="item-description">Distancia Portos</span></a>
+                </li>
+                <li class="side-item"><a href="Interceptação.html"><i class="fa-solid fa-arrows-to-circle"></i>
+                    <span class="item-description">Interceptação</span></a>
+                </li>
+            </ul>
         </div>
         
         <div id="logout">
@@ -421,31 +399,40 @@ body {
                 <span class="item-description">Logout</span>
             </button>
         </div>
-		
-			<button id="open_btn">
-                <i id="open_btn_icon" class="fa-solid fa-chevron-right"></i>
-            </button>
-  
+        
+        <button id="open_btn">
+            <i id="open_btn_icon" class="fa-solid fa-chevron-right"></i>
+        </button>
     </nav>
     
     <div id="main-content">
-      <div class="content">
-  <h3>Calculadora de Tempo e Distância</h3>
-  <label>Data e Hora da Posição:</label>
-  <input type="datetime-local" id="dataHoraPosicao"><br>
-  
-  <label>Distância a Navegar (MN):</label>
-  <input type="number" id="distancia" placeholder="MN"><br>
-  
-  <label>Velocidade Navegando (Nós):</label>
-  <input type="number" id="velocidade" placeholder="Nós" oninput="calcularTempo()"><br>
-  
-  <div id="resultado"></div>
-</div>
+        <div class="calculator-container">
+            <h1>Calculadora de Tempo e Distância</h1>
+            <form class="calculator-form" onsubmit="event.preventDefault(); calcularTempo();">
+                <div class="form-group">
+                    <label for="dataHoraPosicao">Data e Hora da Posição:</label>
+                    <input type="datetime-local" id="dataHoraPosicao" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="distancia">Distância a Navegar (MN):</label>
+                    <input type="number" id="distancia" placeholder="MN" min="0" step="0.1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="velocidade">Velocidade Navegando (Nós):</label>
+                    <input type="number" id="velocidade" placeholder="Nós" min="0" step="0.1" required oninput="calcularTempo()">
+                </div>
+                
+                <button type="submit" style="background-color: var(--primary-color); color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">Calcular</button>
+                
+                <div id="resultado"></div>
+            </form>
         </div>
     </div>
 </div>
-  <script>
+
+<script>
 function calcularTempo() {
   const dataHoraPosicao = new Date(document.getElementById("dataHoraPosicao").value);
   const distancia = parseFloat(document.getElementById("distancia").value);
@@ -463,35 +450,42 @@ function calcularTempo() {
   dataHoraPosicao.setHours(dataHoraPosicao.getHours() + horas);
   dataHoraPosicao.setMinutes(dataHoraPosicao.getMinutes() + minutos);
 
-  document.getElementById("resultado").innerText = `Horas a Navegar: ${horas}h:${minutos}m\nData de Chegada: ${dataHoraPosicao.toLocaleString("pt-BR", {day: "2-digit",month: "2-digit",year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false})}`;
+  const resultadoHTML = `
+    <p><strong>Horas a Navegar:</strong> ${horas}h ${minutos}m</p>
+    <p><strong>Data de Chegada:</strong> ${dataHoraPosicao.toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric", 
+      hour: "2-digit", 
+      minute: "2-digit", 
+      hour12: false
+    })}</p>
+  `;
+  
+  document.getElementById("resultado").innerHTML = resultadoHTML;
 }
  
-	    
-document.getElementById('open_btn').addEventListener('click', function () {
+document.getElementById('open_btn').addEventListener('click', function() {
     document.getElementById('sidebar').classList.toggle('open-sidebar');
 });
-// Detectar mudança de tamanho da tela
-function handleResize() {
+
+// Ajustar o layout ao redimensionar
+window.addEventListener('resize', function() {
     const isMobile = window.innerWidth <= 768;
     const sidebar = document.getElementById('sidebar');
     
-    if (isMobile) {
+    if (isMobile && sidebar.classList.contains('open-sidebar')) {
         sidebar.classList.remove('open-sidebar');
     }
-    
-    map.invalidateSize();
-}
+});
 
 // Inicializar
 window.addEventListener('load', function() {
-    handleResize();
-    map.invalidateSize();
+    // Definir data/hora atual como padrão
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('dataHoraPosicao').value = now.toISOString().slice(0, 16);
 });
-
-// Monitorar redimensionamento
-window.addEventListener('resize', function() {
-    handleResize();
-});
-  </script>
+</script>
 </body>
 </html>
