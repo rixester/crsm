@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <title>v.006. Mapa Interativo</title>
+  <title>Mapa Interativo</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -12,9 +12,14 @@
   <!--<link rel="stylesheet" href="src/css/styles.css">-->
   
 <style>
-/* V.005 - Responsivo */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
+:root {
+  --primary-color: #4f46e5;
+  --sidebar-width: 80px;
+  --sidebar-expanded-width: 250px;
+  --header-height: 60px;
+}	
 * {
     margin: 0;
     padding: 0;
@@ -35,13 +40,13 @@ body {
 #app-container {
     display: flex;
     flex: 1;
-    height: calc(100vh - 60px); /* Ajuste se tiver header/footer */
+    height: 100vh; /* Ajuste se tiver header/footer */
 }
 
 /* Sidebar */
 #sidebar {
-    width: 80px;
-    height: calc(100vh - 50px);
+    width: var(--sidebar-width);
+    height: 100vh;
     background-color: #ffffff;
     border-radius: 0px 10px 0px 0px;
     display: flex;
@@ -54,7 +59,7 @@ body {
 }
 
 #sidebar.open-sidebar {
-    width: 250px;
+    width: var(--sidebar-expanded-width);
 }
 
 #sidebar_content {
@@ -68,9 +73,11 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: auto;
+    padding: 20px;
     transition: margin-left 0.3s;
     position: relative;
+    background-color: #f5f7fa;
 }
 
 /* Mapa */
@@ -173,7 +180,7 @@ body {
 }
 
 .side-item.active {
-    background-color: #4f46e5;
+    background-color: var(--primary-color);
 }
 
 .side-item:hover:not(.active),
@@ -266,7 +273,7 @@ body {
 }
 
 /* Media queries para dispositivos móveis */
-@media (max-width: 768px) {
+@media (max-width: 720px) {
     #app-container {
         flex-direction: column;
         height: auto;
@@ -299,25 +306,27 @@ body {
         flex-direction: row;
         flex-wrap: wrap;
         margin-top: 0;
-        gap: 5px;
+        margin-right: 28px;
+        width: 70%;
+        gap: 20px;
     }
     
     .side-item {
-        padding: 10px 30px;
+        padding: 20px 20px;
 		
     }
     
     #logout {
         border-top: none;
-        padding: 8px;
-		margin-right: 25px;
+        padding: 0px;
+	margin-right: 50px;
 		
     }
     
-    #open_btn {
-        display: one;
-        top: 2px;
-        right: 5px;
+       #open_btn {
+        display: flex;
+        top: 10px;
+        right: 10px;
     }
     
     #sidebar .item-description {
