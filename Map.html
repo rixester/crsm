@@ -389,7 +389,7 @@ body {
     <nav id="sidebar">
         <div id="sidebar_content">
             <div id="user">
-                <img src="http://rixester.github.io/CRSM/IMG/avatar.png" id="user_avatar" alt="Avatar">
+                <img src="IMG/avatar.png" id="user_avatar" alt="Avatar">
 				
                 <p id="user_infos">
                     <span class="item-description">CRSM</span>
@@ -737,10 +737,10 @@ document.getElementById('open_btn').addEventListener('click', function () {
 });
 // Detectar mudança de tamanho da tela
 function handleResize() {
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = window.innerWidth <= 720;
     const sidebar = document.getElementById('sidebar');
     
-    if (isMobile) {
+       if (isMobile && sidebar.classList.contains('open-sidebar')) {
         sidebar.classList.remove('open-sidebar');
     }
     
