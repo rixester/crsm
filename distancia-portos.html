@@ -2,34 +2,271 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Calculadora de Distância entre Portos</title>
+  <title>Calculadora de Tempo e Distância</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f9;
-      padding: 20px;
-      text-align: center;
-    }
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet Control Layers Tree CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.control.layers.tree/L.Control.Layers.Tree.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-    .content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      display: inline-block;
-    }
+:root {
+  --primary-color: #4f46e5;
+  --sidebar-width: 80px;
+  --sidebar-expanded-width: 250px;
+  --header-height: 60px;
+}
 
-    select, input {
-      margin: 10px;
-      padding: 8px;
-      width: 180px;
-    }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
 
-    #map {
-      width: 100%;
-      height: 400px;
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #e3e9f7;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Container principal */
+#app-container {
+    display: flex;
+    flex: 1;
+    height: 100vh;
+}
+
+/* Sidebar */
+#sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: #ffffff;
+    border-radius: 0px 10px 0px 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.5s;
+    position: relative;
+    z-index: 10;
+    overflow: hidden;
+}
+
+#sidebar.open-sidebar {
+    width: var(--sidebar-expanded-width);
+}
+
+#sidebar_content {
+    padding: 12px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Conteúdo principal */
+#main-content {
+    overflow: auto;
+    padding: 20px;
+    transition: margin-left 0.3s;
+    position: relative;
+    background-color: #f5f7fa;
+}
+
+/* Estilos para a calculadora */
+.calculator-container {
+    width: 70%;
+    margin: 20px auto;
+    padding: 25px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.calculator-container h1 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.calculator-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group input {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-group input:focus {
+    outline: none;
+    
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+#resultado {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    border-left: 4px solid var(--primary-color);
+    font-size: 16px;
+    white-space: pre-line;
+}
+
+/* Estilos comuns da sidebar */
+#user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+
+#user_avatar {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 20px;
+}
+
+#user_infos {
+    display: flex;
+    flex-direction: column;
+}
+
+#user_infos span:last-child {
+    color: #6b6b6b;
+    font-size: 12px;
+}
+
+#side_items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    list-style: none;
+    margin-top: 20px;
+}
+
+.side-item {
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.side-item.active {
+    background-color: var(--primary-color);
+}
+
+.side-item:hover:not(.active),
+#logout_btn:hover {
+    background-color: #e3e9f7;
+}
+
+.side-item a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    color: #0a0a0a;
+}
+
+.side-item.active a {
+    color: #e3e9f7;
+}
+
+.side-item a i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+}
+
+#logout {
+    border-top: 1px solid #e3e9f7;
+    padding: 12px;
+}
+
+#logout_btn {
+    border: none;
+    padding: 12px;
+    font-size: 14px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    border-radius: 8px;
+    text-align: start;
+    cursor: pointer;
+    background-color: transparent;
+    width: 100%;
+}
+
+#open_btn {
+    position: absolute;
+    top: 2px;
+    right: 2px; /* Aumentei um pouco para ficar mais para fora */
+    background-color: #4f46e5;
+    color: #e3e9f7;
+    border-radius: 100%;
+    width: 24px; /* Aumentei o tamanho */
+    height: 24px;
+    border: 2px solid white; /* Borda para destacar */
+    cursor: pointer;
+    z-index: 9000; /* Garante que fique por cima */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sombra para profundidade */
+    transition: all 0.3s ease;
+}
+
+#open_btn:hover {
+    transform: scale(1.1);
+    background-color: #4338ca;
+}
+
+#open_btn_icon {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.open-sidebar #open_btn_icon {
+    transform: rotate(180deg);
+}
+
+.item-description {
+    width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    transition: width .6s;
+}
+
+#sidebar.open-sidebar .item-description {
+    width: 150px;
+    margin-left: 10px;
+}#map {
+      width: 65vw;
+      height: 70vh;
       margin-top: 20px;
       border: 1px solid #ccc;
     }
@@ -38,16 +275,160 @@
       font-size: 18px;
       margin-top: 10px;
     }
-  </style>
+
+/* Media queries para dispositivos móveis */
+@media (max-width: 720px) {
+    #app-container {
+        flex-direction: column;
+    }
+    
+    #sidebar {
+        width: 100%;
+        height: auto;
+        border-radius: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    #sidebar.open-sidebar {
+        width: 100%;
+    }
+    
+    #sidebar_content {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        padding: 8px;
+    }
+    
+    #user {
+        display: none;
+    }
+    
+    #side_items {
+        flex-direction: row;
+        flex-wrap: wrap;
+        margin-top: 0;
+        margin-right: 28px;
+        width: 70%;
+        gap: 20px;
+    }
+    
+    .side-item {
+        padding: 20px 20px;
+    }
+    
+    #logout {
+        border-top: none;
+        padding: 0px;
+        margin-right: 50px;
+    }
+    
+    #open_btn {
+        display: flex;
+        top: 10px;
+        right: 10px;
+    }
+    
+    #sidebar .item-description {
+        width: auto !important;
+        display: none;
+    }
+    
+    #sidebar.open-sidebar .item-description {
+        display: inline;
+    }
+    
+    .calculator-container {
+        margin-top: 20px;
+        padding: 15px;
+    }
+}
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 480px) {
+    .calculator-form {
+        gap: 2px;
+    }
+    
+    .form-group input {
+        padding: 8px 12px;
+    }
+    
+    #side_items {
+        gap: 3px;
+    }
+    
+    .side-item {
+        padding: 6px 8px;
+    }
+}
+</style>
 </head>
 <body>
+<div id="app-container">
+    <nav id="sidebar">
+        <div id="sidebar_content">
+            <div id="user">
+                <img src="IMG/avatar.png" id="user_avatar" alt="Avatar">
+                <p id="user_infos">
+                    <span class="item-description">CRSM</span>
+                    <span class="item-description">COM3DN</span>
+                </p>
+            </div>
+            <ul id="side_items">
+                <li class="side-item"><a href="index.html"><i class="fa-solid fa-landmark"></i>
+                    <span class="item-description">Inicio</span></a>
+                </li>
+                <li class="side-item"><a href="Map.html"><i class="fa-solid fa-globe"></i>
+                    <span class="item-description">Mapa Interativo</span></a>
+                </li>
+                <li class="side-item"><a href="calculadora.html"><i class="fa-solid fa-calculator"></i>
+                    <span class="item-description">Calculadora</span></a>
+                </li>  
+                <li class="side-item"><a href="consulta-mmsi.html"><i class="fa-solid fa-flag"></i>
+                    <span class="item-description">Consulta MMSI</span></a>
+                </li>  
+                <li class="side-item "><a href="conversor-gms.html"><i class="fa-solid fa-compass"></i>
+                    <span class="item-description">Conversor(GMS)</span></a>
+                </li>
+                <li class="side-item "><a href="conversor-decimal.html"><i class="fa-solid fa-gear"></i>
+                    <span class="item-description">Conversor(DEC)</span></a>
+                </li>
+                <li class="side-item active"><a href="distancia-portos.html"><i class="fa-solid fa-house-flood-water-circle-arrow-right"></i>
+                    <span class="item-description">Distancia Portos</span></a>
+                </li>
+                <li class="side-item"><a href="Interceptação.html"><i class="fa-solid fa-arrows-to-circle"></i>
+                    <span class="item-description">Interceptação</span></a>
+                </li>
+            </ul>
+        </div>
+        
+        <div id="logout">
+            <button id="logout_btn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span class="item-description">Logout</span>
+            </button>
+        </div>
+        
+        <button id="open_btn">
+            <i id="open_btn_icon" class="fa-solid fa-chevron-right"></i>
+        </button>
+    </nav>
+    <div id="main-content" class="calculator-container">
+  <h1>Calculadora de Distância entre Portos</h1>
+  
+  <div class="input-group">
+    <label for="porto1">Porto de Origem:</label>
+    <input list="portos" id="porto1" class="port-input" placeholder="Selecione ou digite">
+  </div>
+  
+  <div class="input-group">
+    <label for="porto2">Porto de Destino:</label>
+    <input list="portos" id="porto2" class="port-input" placeholder="Selecione ou digite">
+  </div>
 
-<div class="content">
-  <h2>Calculadora de Distância e Tempo entre Portos</h2>
-
-  <label for="porto1">Porto 1:</label>
-  <input list="portos1" id="porto1">
-  <datalist id="portos1">
+  <datalist id="portos">
 <option value="aracati"></option>
 <option value="areia branca"></option>
 <option value="atol das rocas"></option>
@@ -64,59 +445,86 @@
 <option value="sao pedro e sao paulo"></option>
   </datalist>
 
-  <label for="porto2">Porto 2:</label>
-  <input list="portos2" id="porto2">
-  <datalist id="portos2">
-<option value="aracati"></option>
-<option value="areia branca"></option>
-<option value="atol das rocas"></option>
-<option value="cabedelo"></option>
-<option value="camocim"></option>
-<option value="fernando de noronha"></option>
-<option value="fortaleza"></option>
-<option value="guamare"></option>
-<option value="maceio"></option>
-<option value="natal"></option>
-<option value="pecem"></option>
-<option value="recife"></option>
-<option value="suape"></option>
-<option value="sao pedro e sao paulo"></option>
-  </datalist>
+  <div class="input-group">
+    <label for="velocidade">Velocidade (nós):</label>
+    <input type="number" id="velocidade" min="1" step="0.1" placeholder="Ex: 12.5">
+  </div>
 
-  <br>
+  <button id="calcular-btn" class="calculate-btn">Calcular Distância</button>
 
-  <label for="velocidade2">Velocidade (nós):</label>
-  <input type="number" id="velocidade2" placeholder="Velocidade">
+  <div class="results">
+    <p id="distancia" class="result-item"></p>
+    <p id="tempo" class="result-item"></p>
+	<a href="calculadora.html"><p id="eta" class="result-item"></p></a>
+    
+  </div>
 
-  <br>
-  <button onclick="calcularDistancia()">Calcular</button>
-
-  <p id="distancia2"></p>
-  <p id="tempo"></p>
-
-  <div id="map"></div>
+  <div id="map" class="map-container"></div>
 </div>
+	
+	
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <script>
-  const portos = {
-"aracati":				{ lat: -4.423261, lon: -37.764558},
-"areia branca":			{ lat: -4.928146, lon: -37.144775},
-"atol das rocas":		{ lat: -3.858260, lon: -33.816604},
-"cabedelo":				{ lat: -6.952839, lon: -34.846572},
-"camocim":				{ lat: -2.910124, lon: -40.825195},
-"fernando de noronha":	{ lat: -3.859116, lon: -32.451381},
-"fortaleza":			{ lat: -3.703330, lon: -38.487854},
-"guamare":				{ lat: -5.083420, lon: -36.305007},
-"maceio":				{ lat: -9.694166, lon: -35.741615},
-"natal":				{ lat: -5.750000, lon: -35.200000},
-"pecem":				{ lat: -3.528927, lon: -38.811864},
-"recife":				{ lat: -8.050000, lon: -34.866667},
-"suape":				{ lat: -8.388487, lon: -34.940471},
-"sao pedro e sao paulo":{ lat:  0.914241, lon: -29.345786}
+// Módulo principal da aplicação
+const PortDistanceCalculator = (() => {
+  // Configurações
+  const config = {
+    mapOptions: {
+      center: [-5.5, -36],
+      zoom: 6,
+      tileLayer: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution: '© OpenStreetMap'
+    },
+    polylineStyle: {
+      color: 'blue',
+      weight: 3,
+      opacity: 0.7
+    },
+    markerOptions: {
+      icon: L.icon({
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41]
+      })
+    }
   };
 
-  const distancias = {
+  // Elementos DOM
+  const elements = {
+    porto1: document.getElementById('porto1'),
+    porto2: document.getElementById('porto2'),
+    velocidade: document.getElementById('velocidade'),
+    calcularBtn: document.getElementById('calcular-btn'),
+    distanciaEl: document.getElementById('distancia'),
+    tempoEl: document.getElementById('tempo'),
+    etaEl: document.getElementById('eta'),
+    mapEl: document.getElementById('map')
+  };
+
+  // Estado da aplicação
+  let state = {
+    map: null,
+    markers: [],
+    polylines: [],
+	portos: {
+  "aracati": { lat: -4.423261, lon: -37.764558 },
+  "areia branca": { lat: -4.928146, lon: -37.144775 },
+  "atol das rocas": { lat: -3.858260, lon: -33.816604 },
+  "cabedelo": { lat: -6.952839, lon: -34.846572 },
+  "camocim": { lat: -2.910124, lon: -40.825195 },
+  "fernando de noronha": { lat: -3.859116, lon: -32.451381 },
+  "fortaleza": { lat: -3.703330, lon: -38.487854 },
+  "guamare": { lat: -5.083420, lon: -36.305007 },
+  "maceio": { lat: -9.694166, lon: -35.741615 },
+  "natal": { lat: -5.750000, lon: -35.200000 },
+  "pecem": { lat: -3.528927, lon: -38.811864 },
+  "recife": { lat: -8.050000, lon: -34.866667 },
+  "suape": { lat: -8.388487, lon: -34.940471 },
+  "sao pedro e sao paulo": { lat: 0.914241, lon: -29.345786 }
+},
+    distancias: {
 "aracati - atol das rocas": 232, 
 "aracati - camocim": 222, 
 "aracati - fernando de noronha": 318, 
@@ -207,10 +615,8 @@
 "suape - sao pedro e sao paulo": 647,
 "atol das rocas - fernando de noronha": 93,
 "atol das rocas - sao pedro e sao paulo": 394,
-"sao pedro e sao paulo - fernando de noronha": 340 
-  };
-
-  const pontos = {
+"sao pedro e sao paulo - fernando de noronha": 340 },
+    pontos: {
 "atol das rocas - fernando de noronha": 			[[-3.859116,-32.451381], [-3.858260,-33.816604]],
 "sao pedro e sao paulo - fernando de noronha": 		[[-3.859116,-32.451381], [ 0.914241,-29.345786]],
 "atol das rocas - sao pedro e sao paulo": 			[[-3.858260,-33.816604], [ 0.914241,-29.345786]],
@@ -301,70 +707,172 @@
 "suape - natal": 						[[-5.750000,-35.200000], [-5.750756,-35.197546],[-5.730001,-35.133263],[-6.350613,-34.910017],[-7.025933,-34.741641],[-7.717837,-34.741641],[-8.110317,-34.805883],[-8.385079,-34.946451],[-8.388487,-34.940471]],
 "suape - pecem": 						[[-3.528927,-38.811864], [-3.524492,-38.811629],[-3.500884,-38.804777],[-3.667231,-38.458358],[-4.731514,-37.117593],[-5.133326,-35.347170],[-6.350613,-34.910017],[-7.025933,-34.741641],[-7.717837,-34.741641],[-8.110317,-34.805883],[-8.385079,-34.946451],[-8.388487,-34.940471]],
 "suape - recife": 						[[-8.050000,-34.866667], [-8.052349,-34.857695],[-8.352095,-34.905662],[-8.385079,-34.946451],[-8.388487,-34.940471]],
-"suape - sao pedro e sao paulo": 		[[ 0.914241,-29.345786], [-8.388487,-34.940471]]
+"suape - sao pedro e sao paulo": 		[[ 0.914241,-29.345786], [-8.388487,-34.940471]]}
   };
 
-  let map = L.map('map').setView([-5.5, -36], 6);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
-
-  let markers = [];
-  let polylines = [];
-
-  function limparMapa() {
-    markers.forEach(m => map.removeLayer(m));
-    polylines.forEach(p => map.removeLayer(p));
-    markers = [];
-    polylines = [];
+  // Inicialização do mapa
+  function initMap() {
+    state.map = L.map(elements.mapEl).setView(config.mapOptions.center, config.mapOptions.zoom);
+    L.tileLayer(config.mapOptions.tileLayer, {
+      attribution: config.mapOptions.attribution
+    }).addTo(state.map);
   }
 
-  function normalize(str) {
-    return str.trim().toLowerCase();
+  // Limpar o mapa
+  function clearMap() {
+    state.markers.forEach(marker => state.map.removeLayer(marker));
+    state.polylines.forEach(polyline => state.map.removeLayer(polyline));
+    state.markers = [];
+    state.polylines = [];
   }
 
-  function calcularDistancia() {
-    const porto1 = normalize(document.getElementById("porto1").value);
-    const porto2 = normalize(document.getElementById("porto2").value);
-    const velocidade = parseFloat(document.getElementById("velocidade2").value);
+  // Normalizar texto
+  function normalizeText(text) {
+    return text.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
 
-    if (!porto1 || !porto2 || porto1 === porto2 || isNaN(velocidade) || velocidade <= 0) {
-      alert("Preencha os campos corretamente.");
+  // Validar entrada
+  function validateInputs(porto1, porto2, velocidade) {
+    const errors = [];
+    
+    if (!porto1 || !state.portos[porto1]) {
+      errors.push('Selecione um porto de origem válido');
+    }
+    
+    if (!porto2 || !state.portos[porto2]) {
+      errors.push('Selecione um porto de destino válido');
+    }
+    
+    if (porto1 === porto2) {
+      errors.push('Os portos de origem e destino devem ser diferentes');
+    }
+    
+    if (isNaN(velocidade)) {
+      errors.push('A velocidade deve ser um número');
+    } else if (velocidade <= 0) {
+      errors.push('A velocidade deve ser maior que zero');
+    }
+    
+    return errors;
+  }
+
+  // Calcular tempo de viagem
+  function calculateTravelTime(distance, speed) {
+    const totalHours = distance / speed;
+    const hours = Math.floor(totalHours);
+    const minutes = Math.round((totalHours % 1) * 60);
+    
+    return { hours, minutes };
+  }
+
+  // Encontrar rota
+  function findRoute(porto1, porto2) {
+    let routeKey = `${porto1} - ${porto2}`;
+    if (!state.distancias[routeKey]) {
+      routeKey = `${porto2} - ${porto1}`;
+    }
+    
+    return {
+      distance: state.distancias[routeKey],
+      points: state.pontos[routeKey]
+    };
+  }
+const portoOrigemIcon = L.icon({
+  iconUrl: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
+});
+
+const portoDestinoIcon = L.icon({
+  iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
+});
+
+  // Mostrar resultados no mapa
+  function displayResultsOnMap(porto1, porto2, routePoints) {
+    clearMap();
+    
+    // Adicionar marcadores
+    // Adicionar marcador de origem
+const marker1 = L.marker(
+  [state.portos[porto1].lat, state.portos[porto1].lon],
+  { icon: portoOrigemIcon }
+).addTo(state.map).bindPopup(`<b>Origem:</b> ${porto1}`).openPopup();
+
+// Adicionar marcador de destino
+const marker2 = L.marker(
+  [state.portos[porto2].lat, state.portos[porto2].lon],
+  { icon: portoDestinoIcon }
+).addTo(state.map).bindPopup(`<b>Destino:</b> ${porto2}`);
+
+    // Adicionar rota
+    const polyline = L.polyline(routePoints, config.polylineStyle).addTo(state.map);
+    
+    // Atualizar estado
+    state.markers.push(marker1, marker2);
+    state.polylines.push(polyline);
+    
+    // Ajustar visualização do mapa
+    state.map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+  }
+
+  // Função principal de cálculo
+  function calculateDistance() {
+    const porto1 = normalizeText(elements.porto1.value);
+    const porto2 = normalizeText(elements.porto2.value);
+    const velocidade = parseFloat(elements.velocidade.value);
+    
+    // Validação
+    const errors = validateInputs(porto1, porto2, velocidade);
+    if (errors.length > 0) {
+      alert(errors.join('\n'));
       return;
     }
-
-    let chave = `${porto1} - ${porto2}`;
-    if (!distancias[chave]) {
-      chave = `${porto2} - ${porto1}`;
-    }
-
-    const distanciaMN = distancias[chave];
-    const rota = pontos[chave];
-
-    if (!distanciaMN || !rota) {
-      alert("Distância ou rota não encontrada.");
+    
+    // Encontrar rota
+    const route = findRoute(porto1, porto2);
+    if (!route.distance || !route.points) {
+      alert('Rota não encontrada entre os portos selecionados');
       return;
     }
-
-    const tempoHoras = distanciaMN / velocidade;
-    const horas = Math.floor(tempoHoras);
-    const minutos = Math.round((tempoHoras % 1) * 60);
-
-    document.getElementById("distancia2").textContent = `Distância: ${distanciaMN} MN`;
-    document.getElementById("tempo").textContent = `Tempo estimado: ${horas}h ${minutos}m`;
-
-    limparMapa();
-
-    const marker1 = L.marker([portos[porto1].lat, portos[porto1].lon]).addTo(map).bindPopup(porto1).openPopup();
-    const marker2 = L.marker([portos[porto2].lat, portos[porto2].lon]).addTo(map).bindPopup(porto2);
-    const polyline = L.polyline(rota, { color: 'blue' }).addTo(map);
-
-    markers.push(marker1, marker2);
-    polylines.push(polyline);
-
-    map.fitBounds(polyline.getBounds());
+    
+    // Calcular tempo
+    const travelTime = calculateTravelTime(route.distance, velocidade);
+    
+    // Exibir resultados
+    elements.distanciaEl.textContent = `Distância: ${route.distance} milhas náuticas`;
+    elements.tempoEl.textContent = `Tempo estimado: ${travelTime.hours}h ${travelTime.minutes}m`;
+    elements.etaEl.textContent = `Deseja calcular o eta? acesse aqui!`;
+    
+    // Mostrar no mapa
+    displayResultsOnMap(porto1, porto2, route.points);
   }
+
+  // Inicialização
+  function init() {
+    initMap();
+    elements.calcularBtn.addEventListener('click', calculateDistance);
+    
+    // Permitir calcular com Enter
+    [elements.porto1, elements.porto2, elements.velocidade].forEach(el => {
+      el.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') calculateDistance();
+      });
+    });
+  }
+
+  // API pública
+  return {
+    init
+  };
+})();
+
+// Inicializar a aplicação quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', PortDistanceCalculator.init);
+
 </script>
-
 </body>
 </html>
