@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Calculadora de Tempo e Distância</title>
+  <title>Conversor de Decimal para GMS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -82,7 +82,7 @@ body {
 
 /* Estilos para a calculadora */
 .calculator-container {
-    width: 70vh;
+    width: 550px;
     margin: 20px 0px;
     padding: 25px;
     background: white;
@@ -411,10 +411,10 @@ body {
     
     <div id="main-content">
       <h1>Conversor de Decimal para GMS</h1>
-        <div style="text-align:center" class="calculator-container">
-	Lat: <input type="text" min="-89,9999" max="89,9999" id="patr_lat" step="0.0001" placeholder="Latitude decimal" oninput="calculargms()">
-, Long: <input type="text" min="-179,9999" max="179,9999" id="patr_lng" step="0.0001" placeholder="Longitude decimal" oninput="calculargms()">
-<br>
+        <div style="text-align:left" class="calculator-container">
+	Lat: <input style="margin-left:15px" type="text" min="-89,9999" max="89,9999" id="patr_lat" step="0.0001" placeholder="Latitude decimal" oninput="calculargms()"> Exemplo:-1.5486<br>
+Long: <input type="text" min="-179,9999" max="179,9999" id="patr_lng" step="0.0001" placeholder="Longitude decimal" oninput="calculargms()"> Exemplo:-45.1537
+<br><br>
 <span id="latgms"></span><span id="longgms"></span>
         </div>
     </div>
