@@ -1,1 +1,1 @@
-https://rixester.github.io/CRSM/
+https://rixester.github.io/crsm/
