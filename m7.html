@@ -95,6 +95,34 @@ const latlngsGrupo3 = [];
 			circlemarker:false
             }}).addTo(map);
 
+	// Função para calcular distância em milhas náuticas entre dois pontos
+function calculateDistanceInNauticalMiles(latlngs) {
+    var distanceInMeters = 0;
+    for (var i = 0; i < latlngs.length - 1; i++) { distanceInMeters += latlngs[i].distanceTo(latlngs[i + 1]); }
+
+    // Converter metros para milhas náuticas (1 náutica = 1852 metros)
+    var distanceInNauticalMiles = distanceInMeters / 1852;
+    return distanceInNauticalMiles;
+};
+
+// Função para exibir a distância calculada
+map.on('draw:created', function(e) {
+    var layer = e.layer;
+    drawnItems.addLayer(layer);
+
+    // Calcular a distância em milhas náuticas
+    if (layer instanceof L.Polyline) {
+        let nauticalDistance = calculateDistanceInNauticalMiles(layer.getLatLngs());
+        layer.bindPopup("Distância: " + nauticalDistance.toFixed(1) + " MN").openPopup();}
+	 // Após o desenho, desabilitar a mensagem padrão do Leaflet Draw
+    let drawControlContainer = document.querySelector('.leaflet-draw-tooltip');
+    if (drawControlContainer) { drawControlContainer.style.display = 'none'; // Esconde a mensagem
+    }});
+	
+	// Mensagem personalizada
+map.on('draw:drawstart', function(e) { let tooltip = document.querySelector('.leaflet-draw-tooltip');
+    if (tooltip) { tooltip.innerHTML = "Desenhando..."; }});
+
 function campoFormatado(label, valor) {
   if (!valor) return "";
   const texto = String(valor).trim();
