@@ -147,6 +147,72 @@ map.on('draw:drawstart', function(e) { let tooltip = document.querySelector('.le
 	// Criar um único controle de posição do mouse
 var mouse_position = new L.Control.MousePosition({"emptyString": "NaN", "lngFirst": false, "numDigits": 6, "position": "topright", "prefix": "Posição:", "separator": " | "});
 
+// Lista de portos com suas coordenadas
+const portos = {
+    "Aracati": { lat: -4.423261, lon: -37.764558 },
+    "Areia Branca": { lat: -4.928146, lon: -37.144775 },
+    "Cabedelo": { lat: -6.952839, lon: -34.846572 },
+    "Camocim": { lat: -2.910124, lon: -40.825195 },
+    "Fortaleza": { lat: -3.703330, lon: -38.487854 },
+    "Guamaré": { lat: -5.083420, lon: -36.305007 },
+    "Maceió": { lat: -9.694166, lon: -35.741615 },
+    "Natal": { lat: -5.750000, lon: -35.200000 },
+    "Pecém": { lat: -3.528927, lon: -38.811864 },
+    "Recife": { lat: -8.050000, lon: -34.866667 },
+    "Suape": { lat: -8.388487, lon: -34.940471 }
+};
+
+// Função para calcular distância em Milhas Náuticas (MN)
+function calcularDistancia(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Raio da Terra em km
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+    // Fórmula de Haversine
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) *
+        Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    // Distância em Milhas Náuticas (MN)
+    return (R * c * 0.539957);
+}
+
+
+
+
+
+
+// Função para encontrar o porto mais próximo
+function portoMaisProximo(latMouse, lonMouse) {
+    let menorDistancia = Infinity;
+    let portoMaisProx = null;
+
+    for (const porto in portos) {
+        let { lat, lon } = portos[porto];
+        let distancia = calcularDistancia(latMouse, lonMouse, lat, lon);
+        
+        if (distancia < menorDistancia) {
+            menorDistancia = distancia;
+            portoMaisProx = porto;
+        }
+    }
+    
+    return { portoMaisProx, menorDistancia: menorDistancia.toFixed(2) };
+}
+
+// Converter Decimal para Graus, Minutos e Segundos (GMS)
+function decimalParaGMS(num, isLatitude) {
+    var grau = Math.floor(Math.abs(num));
+    var minuto = Math.floor((Math.abs(num) - grau) * 60);
+    var segundo = Math.round((Math.abs(num) - grau - (minuto / 60)) * 3600);
+    var direction = isLatitude ? (num >= 0 ? 'N' : 'S') : (num >= 0 ? 'E' : 'W');
+    return grau + "º " + minuto + "' " + segundo + '" ' + direction;
+}
+
+	
 // Adicionar controle ao mapa
 map.addControl(mouse_position);
 
