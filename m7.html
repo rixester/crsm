@@ -108,7 +108,9 @@ const latlngsGrupo3 = [];
         let drawControl = new L.Control.Draw({
          edit: {featureGroup: drawnItems },
          draw: {polyline: {
-				nautic: true // Medir distância
+				metric: false, // Medir distância
+				feet:  false,  // Desabilitar medição em pés
+				nautic:true
 			   },
 			polygon: false,
 			rectangle: false,
