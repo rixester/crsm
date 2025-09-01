@@ -15,21 +15,15 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-	
-    
   <style>
     #map { height: 95vh; }
-    
-    .marker-box {
-      background: #f0f8ff;
+    .marker-box {background: #f0f8ff;
       border-radius: 6px;
       padding: 1px;
       font-size: 8px;
       border: 2px solid red;
       cursor: move;
-      box-shadow: 1px 1px 6px rgba(0,0,0,0.3);
-    }
+      box-shadow: 1px 1px 6px rgba(0,0,0,0.3);}
     .zoom-btn {
       font-size: 8px;
       margin: 1px;
@@ -37,36 +31,28 @@
       border: none;
       background: #eee;
       padding: 1px 2px;
-      border-radius: 4px;
-    }
+      border-radius: 4px;}
   .controle-vermelho {
     background-color: #ff0000;
     border: 1px solid red;
     padding: 2px;
-    border-radius: 6px;
-  }
-
+    border-radius: 6px;}
   .controle-cinza {
     background-color: #aaaaaa;
     border: 1px solid gray;
     padding: 2px;
-    border-radius: 6px;
-  }
+    border-radius: 6px;  }
   .controle-azul {
     background-color: #4ca6ff;
     border: 1px solid gray;
     padding: 2px;
-    border-radius: 6px;
-  }
-
+    border-radius: 6px;}
   .leaflet-control-layers label {
-    font-size: 12px;
-  }
+    font-size: 12px;}
   </style>
 </head>
 <body>
 <div id="map"></div>
-
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.js"></script>
@@ -75,21 +61,15 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js"></script>
-    
     <!-- Inclua o CSS e JS do Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    
     <!-- Inclua o CSS e JS do plugin Leaflet Draw -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
     <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
-
-	
 <script>
 const map = L.map('map').setView([5.85, -45.15], 5);
-
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '2°SG-SI Jefferson Correia'}).addTo(map);
 L.control.fullscreen({position: 'topleft', title:'Tela Cheia', titleCancel: 'Sair da Tela Cheia', content: 'Full'}).addTo(map);
-
 const embarcacoes = [];
 const markerScales = {};
 const overlays = {};
@@ -107,37 +87,24 @@ const latlngsGrupo3 = [];
         let drawnItems = new L.FeatureGroup().addTo(map);
         let drawControl = new L.Control.Draw({
          edit: {featureGroup: drawnItems },
-         draw: {polyline: {
-				metric: false, // Medir distância
-				feet:  false,  // Desabilitar medição em pés
-				nautic:true
-			   },
-			polygon: false,
-			rectangle: false,
-			marker: false,
-			circle:false,
-			circlemarker:false
-            }}).addTo(map);
+         draw: {polyline: {metric: false, feet:false, nautic:true },
+			polygon: false,rectangle: false,marker: false,
+			circle:false,circlemarker:false}}).addTo(map);
 
 	// Função para calcular distância em milhas náuticas entre dois pontos
 function calculateDistanceInNauticalMiles(latlngs) {
     var distanceInMeters = 0;
     for (var i = 0; i < latlngs.length - 1; i++) {
 		distanceInMeters += latlngs[i].distanceTo(latlngs[i + 1]); }
-
     // Converter metros para milhas náuticas (1 náutica = 1852 metros)
     var distanceInNauticalMiles = distanceInMeters / 1852;
-    return distanceInNauticalMiles;
-};
+    return distanceInNauticalMiles;};
 
 // Função para exibir a distância calculada
-map.on('draw:created', function(e) {
-    var layer = e.layer;
+map.on('draw:created', function(e) {var layer = e.layer;
     drawnItems.addLayer(layer);
-
     // Calcular a distância em milhas náuticas
-    if (layer instanceof L.Polyline) {
-        let nauticalDistance = calculateDistanceInNauticalMiles(layer.getLatLngs());
+    if (layer instanceof L.Polyline) { let nauticalDistance = calculateDistanceInNauticalMiles(layer.getLatLngs());
         layer.bindPopup("Distância: " + nauticalDistance.toFixed(1) + " MN").openPopup();}
 	 // Após o desenho, desabilitar a mensagem padrão do Leaflet Draw
     let drawControlContainer = document.querySelector('.leaflet-draw-tooltip');
@@ -145,22 +112,15 @@ map.on('draw:created', function(e) {
     }});
 	
 // Atualizar tooltip durante o desenho
-map.on('draw:drawvertex', function (e) {
-    let latlngs = e.layers.getLayers().map(l => l.getLatLng());
-    if (latlngs.length > 1) {
-        let dist = calculateDistanceInNauticalMiles(latlngs);
+map.on('draw:drawvertex', function (e) { let latlngs = e.layers.getLayers().map(l => l.getLatLng());
+    if (latlngs.length > 1) { let dist = calculateDistanceInNauticalMiles(latlngs);
         let tooltip = document.querySelector('.leaflet-draw-tooltip');
-        if (tooltip) {
-            tooltip.innerHTML = "Distância: " + dist.toFixed(2) + " MN";
-        }
-    }
-});
+        if (tooltip) {tooltip.innerHTML = "Distância: " + dist.toFixed(2) + " MN";}
+    }});
 
 // Mensagem inicial personalizada
-map.on('draw:drawstart', function () {
-    let tooltip = document.querySelector('.leaflet-draw-tooltip');
-    if (tooltip) tooltip.innerHTML = "Clique para começar a medir";
-});
+map.on('draw:drawstart', function () {let tooltip = document.querySelector('.leaflet-draw-tooltip');
+    if (tooltip) tooltip.innerHTML = "Clique para começar a medir";});
 	// Criar um único controle de posição do mouse
 var mouse_position = new L.Control.MousePosition({"emptyString": "NaN", "lngFirst": false, "numDigits": 6, "position": "topright", "prefix": "Posição:", "separator": " | "});
 
@@ -197,28 +157,17 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
     return (R * c * 0.539957);
 }
 
-
-
-
-
-
 // Função para encontrar o porto mais próximo
 function portoMaisProximo(latMouse, lonMouse) {
     let menorDistancia = Infinity;
     let portoMaisProx = null;
-
     for (const porto in portos) {
         let { lat, lon } = portos[porto];
         let distancia = calcularDistancia(latMouse, lonMouse, lat, lon);
-        
         if (distancia < menorDistancia) {
             menorDistancia = distancia;
-            portoMaisProx = porto;
-        }
-    }
-    
-    return { portoMaisProx, menorDistancia: menorDistancia.toFixed(2) };
-}
+            portoMaisProx = porto;} }
+        return { portoMaisProx, menorDistancia: menorDistancia.toFixed(2) };}
 
 // Converter Decimal para Graus, Minutos e Segundos (GMS)
 function decimalParaGMS(num, isLatitude) {
@@ -228,11 +177,8 @@ function decimalParaGMS(num, isLatitude) {
     var direction = isLatitude ? (num >= 0 ? 'N' : 'S') : (num >= 0 ? 'E' : 'W');
     return grau + "º " + minuto + "' " + segundo + '" ' + direction;
 }
-
-	
 // Adicionar controle ao mapa
 map.addControl(mouse_position);
-
 // Evento para calcular distância e exibir dados
 map.on("mousemove", function(e) {
     let { portoMaisProx, menorDistancia } = portoMaisProximo(e.latlng.lat, e.latlng.lng);
@@ -240,12 +186,10 @@ map.on("mousemove", function(e) {
     let decimalLng = e.latlng.lng.toFixed(4);
     let gmsLat = decimalParaGMS(e.latlng.lat, true);
     let gmsLng = decimalParaGMS(e.latlng.lng, false);
-
     document.querySelector(".leaflet-control-mouseposition").innerHTML = `
         DEC: ${decimalLat}, ${decimalLng}<br>
         GMS: ${gmsLat}, ${gmsLng}<br>
-        ${menorDistancia} MN de ${portoMaisProx}`;
-});
+        ${menorDistancia} MN de ${portoMaisProx}`;});
 
 function campoFormatado(label, valor) {
   if (!valor) return "";
@@ -259,21 +203,21 @@ function esperar(ms) {
 
 function zoomMarker(idPonto, factor) {
   const scaleMin = 0.6;
-  const scaleMax = 1.8;
+  const scaleMax = 2;
   markerScales[idPonto] = Math.max(scaleMin, Math.min(scaleMax, markerScales[idPonto] * factor));
   const emb = embarcacoes.find(e => e.id === idPonto);
   if (!emb) return;
 
   const scale = markerScales[idPonto];
-const icon = L.divIcon({
+  const icon = L.divIcon({
   className: 'custom-marker',
   html: `
     <div class="marker-box" style="border-color:red; transform: scale(${scale}); transform-origin: top left; user-select: text; pointer-events: auto;">
       <div style="display: flex; align-items: bottom; justify-content: space-between;">
-        <button style="margin-top: 0px;"  class="zoom-btn" onclick="zoomMarker('${idPonto}', 1.05)">+</button>
+        <button style="margin-top: 0px;"  class="zoom-btn" onclick="zoomMarker('${idPonto}', 1.05)"></button>
 		<div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><i>${emb.plotagem}</i></div>` : ""}
         </div>
-        <button style="margin-top: 0px;" class="zoom-btn" onclick="zoomMarker('${idPonto}', 0.95)">−</button>
+        <button style="margin-top: 0px;" class="zoom-btn" onclick="zoomMarker('${idPonto}', 0.95)"></button>
       </div>
     </div>
   `,
@@ -283,28 +227,9 @@ const icon = L.divIcon({
 document.addEventListener("click", function (e) {
   const target = e.target;
   if (target.hasAttribute("contenteditable")) {
-    target.focus();
-  }
-});
-
-
-  map.eachLayer(layer => {
-    if (layer instanceof L.Marker && layer.options?.idPonto === idPonto) {
-      layer.setIcon(icon);
-    }
-  });
-}
-
-
-
-
-
-
-
-
-
-
-
+    target.focus(); }});
+  map.eachLayer(layer => {if (layer instanceof L.Marker && layer.options?.idPonto === idPonto) {
+      layer.setIcon(icon);}});}
 
 esperar(1000).then(() => {
 fetch("https://opensheet.elk.sh/1y-sjPgHLVjGN-b3zDtlfA_dzuTkCWBzYRsh5HlxO-nQ/contato")
@@ -315,9 +240,7 @@ fetch("https://opensheet.elk.sh/1y-sjPgHLVjGN-b3zDtlfA_dzuTkCWBzYRsh5HlxO-nQ/con
       const lat = parseFloat(item["LAT(dec)"]);
       const lng = parseFloat(item["LONG(dec)"]);
       if (isNaN(lat) || isNaN(lng)) return;
-		
       if (!primeiroLatLng) primeiroLatLng = [lat, lng];
-
       const idPonto = `${item["NOME"]}_${item["PONTOS"]}`;
       const emb = {
         id: idPonto,
@@ -334,19 +257,17 @@ fetch("https://opensheet.elk.sh/1y-sjPgHLVjGN-b3zDtlfA_dzuTkCWBzYRsh5HlxO-nQ/con
         circ: item["CIRC_INCERT"],
         plotagem: item["BALÃOZINHO"]?.replace(/\n/g, "<br>")
       };
-
       embarcacoes.push(emb);
       markerScales[idPonto] = 1;
-
       const icon = L.divIcon({
   className: 'custom-marker',
   html: `
     <div class="marker-box" style="border-color:red;">
       <div style="display: flex; align-items: bottom; justify-content: space-between;">
-        <button style="margin-top: 0px;" class="zoom-btn" onclick="zoomMarker('${idPonto}', 1.05)">+</button>
+        <button style="margin-top: 0px;" class="zoom-btn" onclick="zoomMarker('${idPonto}', 1.05)"></button>
         <div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><i>${emb.plotagem}</i></div>` : ""}
         </div>
-        <button style="margin-top: 0px;" class="zoom-btn" onclick="zoomMarker('${idPonto}', 0.95)">−</button>
+        <button style="margin-top: 0px;" class="zoom-btn" onclick="zoomMarker('${idPonto}', 0.95)"></button>
       </div>
     </div>`,
   iconSize: [150, 50],
@@ -391,19 +312,12 @@ const invertedOverlays = Object.entries(overlays).reverse().reduce((acc, [label,
 
 // Controle 1 – Vermelho (aba 'teste')
 const controle1 = L.control.layers(null, invertedOverlays, { collapsed: true }).addTo(map);
-setTimeout(() => {
-  const el = document.querySelector('.leaflet-control-layers'); // pega o primeiro
-  el.classList.add('controle-vermelho');
-}, 100); // atraso para garantir que o DOM esteja carregado
-
-
-  });
-  });
-
-
+setTimeout(() => {const el = document.querySelector('.leaflet-control-layers'); // pega o primeiro
+  el.classList.add('controle-vermelho');}, 200); // atraso para garantir que o DOM esteja carregado
+});});
 function zoomMarker2(idPonto, factor) {
   const scaleMin = 0.6;
-  const scaleMax = 1.8;
+  const scaleMax = 2;
   markerScales2[idPonto] = Math.max(scaleMin, Math.min(scaleMax, markerScales2[idPonto] * factor));
   const emb = embarcacoes2.find(e => e.id === idPonto);
   if (!emb) return;
@@ -414,10 +328,10 @@ const icon = L.divIcon({
   html: `
     <div class="marker-box" style="border-color:gray; transform: scale(${scale}); transform-origin: top left; user-select: text; pointer-events: auto;">
       <div style="display: flex; align-items: bottom; justify-content: space-between;">
-        <button class="zoom-btn" onclick="zoomMarker2('${idPonto}', 1.05)">+</button>
+        <button class="zoom-btn" onclick="zoomMarker2('${idPonto}', 1.05)"></button>
 		<div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><i>${emb.plotagem}</i></div>` : ""}
         </div>
-        <button class="zoom-btn" onclick="zoomMarker2('${idPonto}', 0.95)">−</button>
+        <button class="zoom-btn" onclick="zoomMarker2('${idPonto}', 0.95)"></button>
       </div>
     </div>
   `,
@@ -469,10 +383,10 @@ fetch("https://opensheet.elk.sh/1y-sjPgHLVjGN-b3zDtlfA_dzuTkCWBzYRsh5HlxO-nQ/pat
   html: `
     <div class="marker-box" style="border-color:gray;">
       <div style="display: flex; align-items: bottom; justify-content: space-between;">
-        <button class="zoom-btn" onclick="zoomMarker2('${idPonto}', 1.05)">+</button>
+        <button class="zoom-btn" onclick="zoomMarker2('${idPonto}', 1.05)"></button>
         <div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><i>${emb.plotagem}</i></div>` : ""}
         </div>
-        <button class="zoom-btn" onclick="zoomMarker2('${idPonto}', 0.95)">−</button>
+        <button class="zoom-btn" onclick="zoomMarker2('${idPonto}', 0.95)"></button>
       </div>
     </div>`,
   iconSize: [150, 50],
@@ -520,15 +434,11 @@ setTimeout(() => {
   const allControls = document.querySelectorAll('.leaflet-control-layers');
   const el = allControls[1]; // pega o segundo
   el.classList.add('controle-cinza');
-}, 200);
-
-  });
-  });
-
+}, 400);});});
 
 function zoomMarker3(idPonto, factor) {
   const scaleMin = 0.6;
-  const scaleMax = 1.8;
+  const scaleMax = 2;
   markerScales3[idPonto] = Math.max(scaleMin, Math.min(scaleMax, markerScales3[idPonto] * factor));
   const emb = embarcacoes3.find(e => e.id === idPonto);
   if (!emb) return;
@@ -539,10 +449,10 @@ const icon = L.divIcon({
   html: `
     <div class="marker-box" style="border-color:blue; transform: scale(${scale}); transform-origin: top left; user-select: text; pointer-events: auto;">
       <div style="display: flex; align-items: bottom; justify-content: space-between;">
-        <button class="zoom-btn" onclick="zoomMarker3('${idPonto}', 1.05)">+</button>
+        <button class="zoom-btn" onclick="zoomMarker3('${idPonto}', 1.05)"></button>
 		<div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><i>${emb.plotagem}</i></div>` : ""}
         </div>
-        <button class="zoom-btn" onclick="zoomMarker3('${idPonto}', 0.95)">−</button>
+        <button class="zoom-btn" onclick="zoomMarker3('${idPonto}', 0.95)"></button>
       </div>
     </div>
   `,
@@ -594,10 +504,10 @@ fetch("https://opensheet.elk.sh/1y-sjPgHLVjGN-b3zDtlfA_dzuTkCWBzYRsh5HlxO-nQ/pma
   html: `
     <div class="marker-box" style="border-color:blue;">
       <div style="display: flex; align-items: bottom; justify-content: space-between;">
-        <button class="zoom-btn" onclick="zoomMarker3('${idPonto}', 1.05)">+</button>
+        <button class="zoom-btn" onclick="zoomMarker3('${idPonto}', 1.05)"></button>
         <div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><i>${emb.plotagem}</i></div>` : ""}
         </div>
-        <button class="zoom-btn" onclick="zoomMarker3('${idPonto}', 0.95)">−</button>
+        <button class="zoom-btn" onclick="zoomMarker3('${idPonto}', 0.95)"></button>
       </div>
     </div>`,
   iconSize: [150, 50],
@@ -645,12 +555,7 @@ setTimeout(() => {
   const allControls = document.querySelectorAll('.leaflet-control-layers');
   const el = allControls[2]; // pega o segundo
   el.classList.add('controle-azul');
-}, 300);
-
-  });
-  });
-
-
+}, 600);});});
 </script>
 </body>
 </html>
