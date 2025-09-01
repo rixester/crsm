@@ -87,7 +87,11 @@
 const map = L.map('map').setView([5.85, -45.15], 5);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '2°SG-SI Jefferson Correia'}).addTo(map);
-		L.control.fullscreen({position: 'topleft', title:'Tela Cheia', titleCancel: 'Sair da Tela Cheia', content: 'Full'}).addTo(map);
+L.control.fullscreen({position: 'topleft', title:'Tela Cheia', titleCancel: 'Sair da Tela Cheia', content: 'Full'}).addTo(map);
+L.control.measure({
+  primaryLengthUnit: 'nauticalmiles',
+  secondaryLengthUnit: 'kilometers'
+}).addTo(map);
 const embarcacoes = [];
 const markerScales = {};
 const overlays = {};
@@ -108,7 +112,6 @@ const latlngsGrupo3 = [];
          draw: {polyline: {
 				metric: false, // Medir distância
 				feet: false,  // Desabilitar medição em pés
-				nautical: true // Medir em milhas náuticas
 			   },
 			polygon: false,
 			rectangle: false,
@@ -120,7 +123,8 @@ const latlngsGrupo3 = [];
 	// Função para calcular distância em milhas náuticas entre dois pontos
 function calculateDistanceInNauticalMiles(latlngs) {
     var distanceInMeters = 0;
-    for (var i = 0; i < latlngs.length - 1; i++) { distanceInMeters += latlngs[i].distanceTo(latlngs[i + 1]); }
+    for (var i = 0; i < latlngs.length - 1; i++) {
+		distanceInMeters += latlngs[i].distanceTo(latlngs[i + 1]); }
 
     // Converter metros para milhas náuticas (1 náutica = 1852 metros)
     var distanceInNauticalMiles = distanceInMeters / 1852;
@@ -141,25 +145,39 @@ map.on('draw:created', function(e) {
     if (drawControlContainer) { drawControlContainer.style.display = 'none'; // Esconde a mensagem
     }});
 	
-	// Mensagem personalizada
-map.on('draw:drawstart', function(e) { let tooltip = document.querySelector('.leaflet-draw-tooltip');
-    if (tooltip) { tooltip.innerHTML = "Desenhando..."; }});
+// Atualizar tooltip durante o desenho
+map.on('draw:drawvertex', function (e) {
+    let latlngs = e.layers.getLayers().map(l => l.getLatLng());
+    if (latlngs.length > 1) {
+        let dist = calculateDistanceInNauticalMiles(latlngs);
+        let tooltip = document.querySelector('.leaflet-draw-tooltip');
+        if (tooltip) {
+            tooltip.innerHTML = "Distância: " + dist.toFixed(2) + " MN";
+        }
+    }
+});
+
+// Mensagem inicial personalizada
+map.on('draw:drawstart', function () {
+    let tooltip = document.querySelector('.leaflet-draw-tooltip');
+    if (tooltip) tooltip.innerHTML = "Clique para começar a medir";
+});
 	// Criar um único controle de posição do mouse
 var mouse_position = new L.Control.MousePosition({"emptyString": "NaN", "lngFirst": false, "numDigits": 6, "position": "topright", "prefix": "Posição:", "separator": " | "});
 
 // Lista de portos com suas coordenadas
 const portos = {
-    "Aracati": { lat: -4.423261, lon: -37.764558 },
-    "Areia Branca": { lat: -4.928146, lon: -37.144775 },
-    "Cabedelo": { lat: -6.952839, lon: -34.846572 },
-    "Camocim": { lat: -2.910124, lon: -40.825195 },
-    "Fortaleza": { lat: -3.703330, lon: -38.487854 },
-    "Guamaré": { lat: -5.083420, lon: -36.305007 },
-    "Maceió": { lat: -9.694166, lon: -35.741615 },
-    "Natal": { lat: -5.750000, lon: -35.200000 },
-    "Pecém": { lat: -3.528927, lon: -38.811864 },
-    "Recife": { lat: -8.050000, lon: -34.866667 },
-    "Suape": { lat: -8.388487, lon: -34.940471 }
+    //"Aracati": { lat: -4.423261, lon: -37.764558 },
+    //"Areia Branca": { lat: -4.928146, lon: -37.144775 },
+    //"Cabedelo": { lat: -6.952839, lon: -34.846572 },
+    //"Camocim": { lat: -2.910124, lon: -40.825195 },
+    //"Fortaleza": { lat: -3.703330, lon: -38.487854 },
+    //"Guamaré": { lat: -5.083420, lon: -36.305007 },
+    //"Maceió": { lat: -9.694166, lon: -35.741615 },
+    "Natal": { lat: -5.750000, lon: -35.200000 }
+    //"Pecém": { lat: -3.528927, lon: -38.811864 },
+    //"Recife": { lat: -8.050000, lon: -34.866667 },
+    //"Suape": { lat: -8.388487, lon: -34.940471 }
 };
 
 // Função para calcular distância em Milhas Náuticas (MN)
