@@ -494,10 +494,7 @@ fetch("https://opensheet.elk.sh/1y-sjPgHLVjGN-b3zDtlfA_dzuTkCWBzYRsh5HlxO-nQ/pma
         lng: lng,
         lat_gsm: item["LAT(gsm)"],
         lng_gsm: item["LONG(gsm)"],
-        rumo: item["Rumo"],
-        veloc: item["Veloc"],
-        dist: item["DistNav"],
-        circ: item["CIRC_INCERT"],
+        rumo: item["Distancia"],
         plotagem: item["BALÃOZINHO"]?.replace(/\n/g, "<br>")
       };
 
