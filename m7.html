@@ -25,7 +25,7 @@
       cursor: move;
       box-shadow: 1px 1px 6px rgba(0,0,0,0.3);}
     .zoom-btn {
-      font-size: 8px;
+      font-size: 9px;
       margin: 1px;
       cursor: pointer;
       border: none;
@@ -217,16 +217,17 @@ function zoomMarker(idPonto, factor) {
   const icon = L.divIcon({
   className: 'custom-marker',
   html: `
-    <div class="marker-box" style="border-color:red; transform: scale(${scale}); transform-origin: top left; user-select: text; pointer-events: auto;">
-      <div style="display: flex; align-items: bottom; justify-content: space-between;">
-        <button style="margin-top: 0px;"  class="zoom-btn" onclick="zoomMarker('${idPonto}', 1.05)"></button>
-		<div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><i>${emb.plotagem}</i></div>` : ""}
+    <div class="marker-box" style="border-color:#000; background-color: #87fa8f; transform: scale(${scale}); transform-origin: top left; user-select: text; pointer-events: auto;">
+      <div style="display: flex; ; align-items: bottom; justify-content: space-between;">
+        <button style="margin-top: 0px;background-color: #87fa8f;"  class="zoom-btn" onclick="zoomMarker('${idPonto}', 1.05)"></button>
+		
+		<div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><b>Posição do CI: </b>${emb.plotagem}</div>` : ""}
         </div>
-        <button style="margin-top: 0px;" class="zoom-btn" onclick="zoomMarker('${idPonto}', 0.95)"></button>
+        <button style="margin-top: 0px; background-color: #87fa8f;" class="zoom-btn" onclick="zoomMarker('${idPonto}', 0.95)"></button>
       </div>
     </div>
   `,
-  iconSize: [150, 50],
+  iconSize: [200, 50],
   iconAnchor: [50, 20]
 });
 document.addEventListener("click", function (e) {
@@ -267,15 +268,15 @@ fetch("https://opensheet.elk.sh/1y-sjPgHLVjGN-b3zDtlfA_dzuTkCWBzYRsh5HlxO-nQ/con
       const icon = L.divIcon({
   className: 'custom-marker',
   html: `
-    <div class="marker-box" style="border-color:red;">
-      <div style="display: flex; align-items: bottom; justify-content: space-between;">
-        <button style="margin-top: 0px;" class="zoom-btn" onclick="zoomMarker('${idPonto}', 1.05)"></button>
-        <div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><i>${emb.plotagem}</i></div>` : ""}
+    <div class="marker-box" style="border-color:#000; background-color: #87fa8f;">
+      <div style="display: flex; align-items: bottom; justify-content: space-between; background-color: #87fa8f;">
+        <button style="margin-top: 0px;background-color: #87fa8f;" class="zoom-btn" onclick="zoomMarker('${idPonto}', 1.05)"></button>
+        <div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><b>Posição do CI: </b>${emb.plotagem}</div>` : ""}
         </div>
-        <button style="margin-top: 0px;" class="zoom-btn" onclick="zoomMarker('${idPonto}', 0.95)"></button>
+        <button style="margin-top: 0px;background-color: #87fa8f;" class="zoom-btn" onclick="zoomMarker('${idPonto}', 0.95)"></button>
       </div>
     </div>`,
-  iconSize: [150, 50],
+  iconSize: [200, 50],
   iconAnchor: [50, 20]
 });
 document.addEventListener("click", function (e) {
@@ -287,9 +288,9 @@ document.addEventListener("click", function (e) {
       const latlng = L.latLng(lat, lng);
 	  latlngsGrupo1.push(latlng);
 	  
-      const circlemaker = L.circleMarker(latlng, { radius: 3, color: 'red',fillColor: 'cyan',fillOpacity: 0.7}).addTo(map);
+      const circlemaker = L.circleMarker(latlng, { radius: 3, color: '#008c23',fillColor: '#008c23',fillOpacity: 0.7}).addTo(map);
       const marker = L.marker(latlng, {icon: icon,draggable: true,idPonto: idPonto}); // ← Não adiciona diretamente ao mapa
-      const linha = L.polyline([latlng, latlng], { color: 'red', weight: 0.8 }); // Também fica inativo
+      const linha = L.polyline([latlng, latlng], { color: '#004010', weight: 0.8 }); // Também fica inativo
 
 		marker.on('drag', (e) => {const nova = e.target.getLatLng();
 		linha.setLatLngs([latlng, nova]);});
@@ -300,12 +301,8 @@ overlays[`<span style='color:black'><b>${emb.nome} (${emb.ponto})</b></span>`] =
 
     });
 if (latlngsGrupo1.length > 1) {
-  const linhaDash = L.polyline(latlngsGrupo1, {
-    color: 'red',
-    weight: 1.2,
-    dashArray: '4 6', // ← define o padrão de traço
-    opacity: 0.7
-  }).addTo(map);
+  const linhaDash = L.polyline(latlngsGrupo1, {color: 'red',weight: 1.2,dashArray: '4 6', // ← define o padrão de traço
+  opacity: 0.7}).addTo(map);
 };
     if (primeiroLatLng) {
       map.setView(primeiroLatLng, 5);
@@ -331,16 +328,16 @@ function zoomMarker2(idPonto, factor) {
 const icon = L.divIcon({
   className: 'custom-marker',
   html: `
-    <div class="marker-box" style="border-color:gray; transform: scale(${scale}); transform-origin: top left; user-select: text; pointer-events: auto;">
+    <div class="marker-box" style="border-color:#000; background-color: #dcdedc; transform: scale(${scale}); transform-origin: top left; user-select: text; pointer-events: auto;">
       <div style="display: flex; align-items: bottom; justify-content: space-between;">
-        <button class="zoom-btn" onclick="zoomMarker2('${idPonto}', 1.05)"></button>
-		<div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><i>${emb.plotagem}</i></div>` : ""}
+        <button class="zoom-btn" style="background-color: #dcdedc;" onclick="zoomMarker2('${idPonto}', 1.05)"></button>
+		<div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><b>Posição do P122</b><br>${emb.plotagem}</div>` : ""}
         </div>
-        <button class="zoom-btn" onclick="zoomMarker2('${idPonto}', 0.95)"></button>
+        <button class="zoom-btn" style="background-color: #dcdedc;" onclick="zoomMarker2('${idPonto}', 0.95)"></button>
       </div>
     </div>
   `,
-  iconSize: [150, 50],
+  iconSize: [200, 50],
   iconAnchor: [50, 20]
 });
 
@@ -386,15 +383,15 @@ fetch("https://opensheet.elk.sh/1y-sjPgHLVjGN-b3zDtlfA_dzuTkCWBzYRsh5HlxO-nQ/pat
       const icon = L.divIcon({
   className: 'custom-marker',
   html: `
-    <div class="marker-box" style="border-color:gray;">
-      <div style="display: flex; align-items: bottom; justify-content: space-between;">
-        <button class="zoom-btn" onclick="zoomMarker2('${idPonto}', 1.05)"></button>
-        <div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><i>${emb.plotagem}</i></div>` : ""}
+    <div class="marker-box" style="border-color:#000; background-color: #dcdedc;">
+      <div style="display: flex; align-items: bottom;  background-color: #dcdedc; justify-content: space-between;">
+        <button class="zoom-btn" style="background-color: #dcdedc;" onclick="zoomMarker2('${idPonto}', 1.05)"></button>
+        <div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><b>Posição do P122</b><br>${emb.plotagem}</div>` : ""}
         </div>
-        <button class="zoom-btn" onclick="zoomMarker2('${idPonto}', 0.95)"></button>
+        <button class="zoom-btn" style=" background-color: #dcdedc;"onclick="zoomMarker2('${idPonto}', 0.95)"></button>
       </div>
     </div>`,
-  iconSize: [150, 50],
+  iconSize: [200, 50],
   iconAnchor: [50, 20]
 });
 document.addEventListener("click", function (e) {
@@ -405,9 +402,9 @@ document.addEventListener("click", function (e) {
 });
       const latlng = L.latLng(lat, lng);
 	  latlngsGrupo2.push(latlng);
-      const circlemaker = L.circleMarker(latlng, { radius: 3, color: 'gray',fillColor: 'cyan',fillOpacity: 0.7}).addTo(map);
+      const circlemaker = L.circleMarker(latlng, { radius: 3, color: '#444444',fillColor: '#444444',fillOpacity: 0.7}).addTo(map);
       const marker = L.marker(latlng, {icon: icon,draggable: true,idPonto: idPonto}); // ← Não adiciona diretamente ao mapa
-      const linha = L.polyline([latlng, latlng], { color: 'gray', weight: 0.8 }); // Também fica inativo
+      const linha = L.polyline([latlng, latlng], { color: '#444444', weight: 0.8 }); // Também fica inativo
 
 		marker.on('drag', (e) => { const nova = e.target.getLatLng();
 		linha.setLatLngs([latlng, nova]);});
@@ -419,7 +416,7 @@ overlays2[`<span style='color:black'><b>${emb.nome} (${emb.ponto})</b></span>`] 
     });
 if (latlngsGrupo2.length > 1) {
   const linhaDash = L.polyline(latlngsGrupo2, {
-    color: 'gray',
+    color: '#444444',
     weight: 1.2,
     dashArray: '4 6', // ← define o padrão de traço
     opacity: 0.7
@@ -434,7 +431,7 @@ const invertedOverlays2 = Object.entries(overlays2).reverse().reduce((acc, [labe
 }, {});
 
 // Controle 2 – Cinza (aba 'teste2')
-const controle2 = L.control.layers(null, invertedOverlays2, { collapsed: true }).addTo(map);
+const controle2 = L.control.layers(null, invertedOverlays2, { collapsed: false }).addTo(map);
 setTimeout(() => {
   const allControls = document.querySelectorAll('.leaflet-control-layers');
   const el = allControls[1]; // pega o segundo
@@ -452,16 +449,16 @@ function zoomMarker3(idPonto, factor) {
 const icon = L.divIcon({
   className: 'custom-marker',
   html: `
-    <div class="marker-box" style="border-color:blue; transform: scale(${scale}); transform-origin: top left; user-select: text; pointer-events: auto;">
+    <div class="marker-box" style="border-color:#000; background-color: #ffb81f; transform: scale(${scale}); transform-origin: top left; user-select: text; pointer-events: auto;">
       <div style="display: flex; align-items: bottom; justify-content: space-between;">
-        <button class="zoom-btn" onclick="zoomMarker3('${idPonto}', 1.05)"></button>
-		<div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><i>${emb.plotagem}</i></div>` : ""}
+        <button class="zoom-btn" style="margin-top: 0px;background-color: #ffb81f;" onclick="zoomMarker3('${idPonto}', 1.05)"></button>
+		<div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><b>Dados estimados da Interceptação</b><br>${emb.plotagem}</div>` : ""}
         </div>
-        <button class="zoom-btn" onclick="zoomMarker3('${idPonto}', 0.95)"></button>
+        <button class="zoom-btn" style="margin-top: 0px;background-color: #ffb81f;" onclick="zoomMarker3('${idPonto}', 0.95)"></button>
       </div>
     </div>
   `,
-  iconSize: [150, 50],
+  iconSize: [200, 50],
   iconAnchor: [50, 20]
 });
 
@@ -504,15 +501,15 @@ fetch("https://opensheet.elk.sh/1y-sjPgHLVjGN-b3zDtlfA_dzuTkCWBzYRsh5HlxO-nQ/pma
       const icon = L.divIcon({
   className: 'custom-marker',
   html: `
-    <div class="marker-box" style="border-color:blue;">
+    <div class="marker-box" style="border-color:#000;background-color: #ffb81f;">
       <div style="display: flex; align-items: bottom; justify-content: space-between;">
-        <button class="zoom-btn" onclick="zoomMarker3('${idPonto}', 1.05)"></button>
-        <div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><i>${emb.plotagem}</i></div>` : ""}
+        <button class="zoom-btn" style="margin-top: 0px;background-color: #ffb81f;" onclick="zoomMarker3('${idPonto}', 1.05)"></button>
+        <div style="flex-grow: 1; text-align: center;">${emb.plotagem ? `<div contenteditable="true" tabindex="0" style="outline: none;"><b>Dados estimados da Interceptação</b><br>${emb.plotagem}</div>` : ""}
         </div>
-        <button class="zoom-btn" onclick="zoomMarker3('${idPonto}', 0.95)"></button>
+        <button class="zoom-btn" style="margin-top: 0px;background-color: #ffb81f;" onclick="zoomMarker3('${idPonto}', 0.95)"></button>
       </div>
     </div>`,
-  iconSize: [150, 50],
+  iconSize: [200, 50],
   iconAnchor: [50, 20]
 });
 document.addEventListener("click", function (e) {
@@ -523,9 +520,9 @@ document.addEventListener("click", function (e) {
 });
       const latlng = L.latLng(lat, lng);
 	  latlngsGrupo3.push(latlng);
-      const circlemaker = L.circleMarker(latlng, { radius: 3, color: 'blue',fillColor: 'cyan',fillOpacity: 0.7}).addTo(map);
+      const circlemaker = L.circleMarker(latlng, { radius: 3, color: '#d96c00',fillColor: '#ffb81f',fillOpacity: 0.7}).addTo(map);
       const marker = L.marker(latlng, {icon: icon,draggable: true,idPonto: idPonto}); // ← Não adiciona diretamente ao mapa
-      const linha = L.polyline([latlng, latlng], { color: 'blue', weight: 0.8 }); // Também fica inativo
+      const linha = L.polyline([latlng, latlng], { color:  '#8c4600', weight: 0.8 }); // Também fica inativo
 
 		marker.on('drag', (e) => { const nova = e.target.getLatLng();
 		linha.setLatLngs([latlng, nova]);});
@@ -552,7 +549,7 @@ const invertedOverlays3 = Object.entries(overlays3).reverse().reduce((acc, [labe
 }, {});
 
 // Controle 3 – azul (aba 'teste3')
-const controle3 = L.control.layers(null, invertedOverlays3, { collapsed: true }).addTo(map);
+const controle3 = L.control.layers(null, invertedOverlays3, { collapsed: false }).addTo(map);
 setTimeout(() => {
   const allControls = document.querySelectorAll('.leaflet-control-layers');
   const el = allControls[2]; // pega o segundo
